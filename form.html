@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>製程流動單 填寫</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=1788162856">
 
 <div class="wrap">
 
@@ -38,11 +38,11 @@
 
 </div>
 
-<script src="config.js"></script>
-<script src="banner.js"></script>
-<script src="fields.js"></script>
+<script src="config.js?v=1788162856"></script>
+<script src="banner.js?v=1788162856"></script>
+<script src="fields.js?v=1788162856"></script>
 <script type="module">
-import { requireLogin, get, create, update } from './db.js';
+import { requireLogin, get, create, update } from './db.js?v=1788162856';
 
 const qs = new URLSearchParams(location.search);
 let NO = qs.get('no') || '';
