@@ -1,0 +1,10 @@
+# 這個倉庫只放前端網頁。任何資料檔都不該出現在這裡——
+# GitHub Pages 免費方案要求倉庫公開，推上去就是全世界看得到。
+*.db
+*.sqlite*
+*.xlsx
+*.xlsm
+*.xls
+*.csv
+*.parquet
+data/

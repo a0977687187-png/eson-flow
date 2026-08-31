@@ -1,0 +1,92 @@
+﻿<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>流動單 怎麼輸入</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+  ol.steps>li{counter-increment:s;position:relative;padding:14px 16px 14px 58px;
+    border-bottom:1px solid var(--rule)}
+  ol.steps>li:last-child{border-bottom:none}
+  ol.steps>li::before{content:counter(s);position:absolute;left:16px;top:14px;
+    width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;
+    font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+  ol.steps b{display:block;font-size:16px;margin-bottom:3px}
+  ol.steps p{margin:2px 0 0;font-size:14px;color:var(--ink-2);line-height:1.65}
+  .kbd{font-family:ui-monospace,monospace;font-size:13px;background:var(--surface-2);
+    border:1px solid var(--rule-2);border-radius:5px;padding:2px 7px;white-space:nowrap}
+  .warn{background:var(--need-soft);border-left:3px solid var(--need);
+    padding:12px 16px;font-size:14px;line-height:1.7}
+  .warn b{color:var(--need)}
+</style>
+
+<div class="wrap">
+
+<div class="top noprint">
+  <div class="tline">
+    <a class="act" href="./">← 回清單</a>
+    <h1>流動單 怎麼輸入</h1>
+    <span class="spacer"></span>
+    <button class="act" onclick="window.print()">列印這頁</button>
+  </div>
+</div>
+
+<section>
+  <div class="sh">紙本填好之後，照這幾步做</div>
+  <ol class="steps">
+    <li><b>打開網址</b>
+      <p>用 Chrome 開系統網址（建議加到「我的最愛」，或按「加到主畫面」變成手機圖示）。<br>
+         手機、平板、家裡的電腦都能開，不必在公司。</p></li>
+
+    <li><b>輸入共用帳號密碼</b>
+      <p>第一次會出現登入畫面，打公司給的帳號密碼。<br>
+         登入一次之後會記住，之後直接進得去，除非你按登出。</p></li>
+
+    <li><b>按右上角的「＋ 靜子 ST」或「＋ 轉子 RO」</b>
+      <p>看你手上那張紙是哪一種就按哪一個。按錯了退出去重按，還沒存的不會留下東西。</p></li>
+
+    <li><b>照紙上的格子，一格一格打進去</b>
+      <p>畫面上的欄位順序跟紙本一模一樣，由上往下對著打。<br>
+         紙上沒填的就留空，<b>不用湊</b>。打到哪算哪，不必一次打完。</p></li>
+
+    <li><b>按右上角「儲存」</b>
+      <p>存好之後，畫面最上面會出現一個單號，像 <span class="kbd">PT2026-0007</span>。</p></li>
+
+    <li><b>把那個單號用筆寫在紙本的右上角</b>
+      <p>這樣以後系統上查到某一筆，就找得到對應的那張紙。<br>
+         寫完紙本收進資料夾。</p></li>
+  </ol>
+</section>
+
+<section>
+  <div class="sh">常見狀況</div>
+  <ol class="steps">
+    <li><b>打到一半有事要走開</b>
+      <p>直接關掉沒關係，內容會留在這台電腦上，下次打開同一張還在。<br>
+         但那只留在<b>這台</b>——換一台電腦就看不到了。所以能存就先按儲存。</p></li>
+
+    <li><b>存好之後發現打錯</b>
+      <p>回清單頁 → 點那一列 → 按「開啟這張單」→ 改完再按儲存。改幾次都可以。</p></li>
+
+    <li><b>想找以前某個客戶怎麼做的</b>
+      <p>在清單頁最上面那個搜尋框打字，客戶、模具、規格、軸孔都可以，
+         空白隔開表示「要同時符合」，例如 <span class="kbd">將凱 90*48 25</span>。<br>
+         點任一列會展開「以前是怎麼做的」，不用開整張單。</p></li>
+
+    <li><b>按了儲存卻跳出失敗</b>
+      <p>多半是網路斷了。<br>
+         你打的內容不會不見，等連上之後再按一次儲存就好。</p></li>
+  </ol>
+</section>
+
+<div class="warn" style="margin-top:16px;border-radius:var(--r)">
+  <b>資料存在哪</b>　存在雲端（Supabase），不在任何一台電腦裡。
+  換電腦、換手機都看得到同樣的資料，也不怕哪台電腦壞掉。
+</div>
+
+<footer>製程流動單記錄層　│　列印這頁可以貼在電腦旁邊</footer>
+
+</div>
+
+
+

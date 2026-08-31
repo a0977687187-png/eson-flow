@@ -1,0 +1,151 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>製程流動單 查詢</title>
+<link rel="stylesheet" href="style.css">
+
+<div class="wrap">
+
+<div class="top">
+  <div class="tline">
+    <h1>製程流動單</h1>
+    <span class="ver" id="tot">—</span>
+    <span class="spacer"></span>
+    <a class="act" href="help.html">怎麼輸入？</a>
+    <button class="act" id="btnOut">登出</button>
+    <a class="act solid" href="form.html?kind=ST">＋ 靜子 ST</a>
+    <a class="act solid" href="form.html?kind=RO">＋ 轉子 RO</a>
+  </div>
+  <input class="search" id="q" placeholder="打客戶、模具、規格、軸孔…都可以，空白隔開＝要同時符合（例：將凱 90*48 22槽）" autofocus>
+  <div class="chips" id="custs"></div>
+</div>
+
+<section>
+  <div class="bar">
+    <span class="t" id="cnt">—</span>
+    <span class="spacer"></span>
+    <button class="chip" data-kind="" aria-pressed="true">全部</button>
+    <button class="chip" data-kind="ST" aria-pressed="false">靜子 ST</button>
+    <button class="chip" data-kind="RO" aria-pressed="false">轉子 RO</button>
+  </div>
+  <div id="body"></div>
+</section>
+
+<footer>
+  主檔沒有預先建立——客戶、模具、規格都是這些單自己長出來的。<br>
+  單子還少的時候搜不到東西是正常的。等累積到三、五十張，再回頭看實際出現過哪些組合，那時候才有依據決定「同規格」該怎麼定義。
+</footer>
+
+</div>
+
+<script src="config.js"></script>
+<script src="banner.js"></script>
+<script src="fields.js"></script>
+<script type="module">
+import { requireLogin, list, meta, logout } from './db.js';
+
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const $ = id => document.getElementById(id);
+let KINDF = '', CUSTF = '', ROWS = [], OPEN = null;
+
+// 選配欄位與站別清單都從 FORM 讀——表單改版後這裡自動跟著變
+const optFields = kind => FORM[kind].filter(i => i.op === 'field' && i.k.startsWith('o_'))
+  .map(i => [i.k, i.l.replace(/\s*[∩φ]\s*$/, '').trim()]);
+const stationsOf = kind => (FORM[kind].find(i => i.op === 'stations') || { list: [] }).list;
+
+const dotColor = s => s === '完成' ? 'var(--ok)' : s === '生產中' ? 'var(--warn)' : 'var(--ink-3)';
+const pctColor = p => p > 85 ? 'var(--ok)' : p > 50 ? 'var(--warn)' : 'var(--bad)';
+
+// 這一段就是「以前怎麼做的」——不必開整張單就看得到
+function howMade(r) {
+  const d = r.data, bits = [];
+  const push = (label, v) => { if (v) bits.push([label, v]); };
+
+  const stations = stationsOf(r.kind);
+  const walked = r.stepsUsed.map(i => (stations[i] ? stations[i].name : '?').replace(/\s/g, ''));
+  const opts = optFields(r.kind).map(([k, l]) => d[k] ? l + ' ' + String(d[k]).replace(/\|/g, '、') : null).filter(Boolean);
+  const post = [d.p_opt, d.p_ring === '有' ? '端環' : '', d.p_fan === '有' ? '扇葉/平衡柱' : '', d.p_other]
+    .filter(Boolean).join('、').replace(/\|/g, '、');
+
+  push('模具', [d.mold, d.spec, d.slots && d.slots + '槽'].filter(Boolean).join('　'));
+  push('材質・軸孔・疊厚・斜度', [d.mat, d.shaft && 'φ' + d.shaft, d.stack, d.skew].filter(Boolean).join('　'));
+  push('沖壓', [d.press && '沖床 ' + d.press, d.skewset && '斜度設定 ' + d.skewset, d.done && '完成 ' + d.done].filter(Boolean).join('　'));
+  push('沖壓選配', opts.join('　'));
+  push('走過的站', walked.join(' → ') || '（未填）');
+  push('後製程', post);
+  push('委外', [d.out1, d.outv].filter(Boolean).join(' / ').replace(/\|/g, '、'));
+  push('包裝', [d.boxtype, d.perbox && '每箱 ' + d.perbox, d.boxes && d.boxes + ' 箱'].filter(Boolean).join('　'));
+  push('入庫', [d.indate, d.inqty && d.inqty + ' 只', d.inloc].filter(Boolean).join('　'));
+  push('製令備註', d.worem);
+
+  return `<div class="grid" style="border-top:1px solid var(--rule)">` +
+    bits.map(([l, v]) => `<div class="f w2"><label>${esc(l)}</label><div style="font-size:14px">${esc(v)}</div></div>`).join('') +
+    `</div><div style="padding:10px 15px"><a class="act solid" href="form.html?no=${encodeURIComponent(r.no)}">開啟這張單</a></div>`;
+}
+
+function render() {
+  $('cnt').textContent = ROWS.length ? `${ROWS.length} 張` + (CUSTF ? `　·　${CUSTF}` : '') : '沒有符合的單';
+  if (!ROWS.length) {
+    $('body').innerHTML = `<div class="empty"><b>還沒有符合的流動單</b>
+      系統是空的沒關係——它靠現場填進來的單長大。<br>
+      按右上角「＋ 靜子 ST」或「＋ 轉子 RO」建第一張。</div>`;
+    return;
+  }
+  let h = `<div class="tw"><table class="rows"><thead><tr>
+    <th>單號</th><th>型別</th><th>客戶</th><th>模具</th><th>規格</th><th>槽數</th><th>軸孔</th><th>疊厚</th>
+    <th>數量</th><th>狀態</th><th>完整度</th><th>不良</th></tr></thead><tbody>`;
+  ROWS.forEach(r => {
+    const d = r.data;
+    h += `<tr data-no="${esc(r.no)}">
+      <td style="font-family:ui-monospace,monospace">${esc(r.no)}</td>
+      <td><span class="tag ${r.kind}">${r.kind}</span></td>
+      <td>${esc(d.cust)}</td><td>${esc(d.mold)}</td><td>${esc(d.spec)}</td>
+      <td>${esc(d.slots)}</td><td>${esc(d.shaft)}</td><td>${esc(d.stack)}</td><td>${esc(d.qty)}</td>
+      <td><span class="dot" style="background:${dotColor(r.status)}"></span>${r.status}</td>
+      <td style="color:${pctColor(r.complete)};font-weight:700">${r.complete}%</td>
+      <td>${r.ngTotal || ''}</td></tr>`;
+    if (OPEN === r.no) h += `<tr><td colspan="12" style="padding:0;background:var(--surface-2)">${howMade(r)}</td></tr>`;
+  });
+  $('body').innerHTML = h + '</tbody></table></div>';
+  document.querySelectorAll('tr[data-no]').forEach(tr => tr.addEventListener('click', () => {
+    OPEN = OPEN === tr.dataset.no ? null : tr.dataset.no; render();
+  }));
+}
+
+async function load() {
+  try {
+    ROWS = await list({ q: $('q').value.trim(), kind: KINDF, cust: CUSTF });
+    render();
+  } catch (e) {
+    $('body').innerHTML = `<div class="empty"><b>讀不到資料</b>${esc(e.message)}</div>`;
+  }
+}
+
+async function loadMeta() {
+  const m = await meta();
+  $('tot').textContent = m.total + ' 張單';
+  $('custs').innerHTML = m.customers.length
+    ? m.customers.map(c => `<button class="chip" data-cust="${esc(c.v)}" aria-pressed="${CUSTF === c.v}">${esc(c.v)}<span class="n">${c.n}</span></button>`).join('')
+    : '<span class="hint">客戶清單會隨著單子填進來自動出現，不需要事先建檔。</span>';
+  document.querySelectorAll('[data-cust]').forEach(b => b.addEventListener('click', () => {
+    CUSTF = CUSTF === b.dataset.cust ? '' : b.dataset.cust;
+    document.querySelectorAll('[data-cust]').forEach(x => x.setAttribute('aria-pressed', x.dataset.cust === CUSTF));
+    OPEN = null; load();
+  }));
+}
+
+let timer;
+$('q').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { OPEN = null; load(); }, 250); });
+document.querySelectorAll('[data-kind]').forEach(b => b.addEventListener('click', () => {
+  KINDF = b.dataset.kind;
+  document.querySelectorAll('[data-kind]').forEach(x => x.setAttribute('aria-pressed', x.dataset.kind === KINDF));
+  OPEN = null; load();
+}));
+$('btnOut').addEventListener('click', logout);
+
+if (await requireLogin()) {
+  banner('🎉 記錄層已上線 —— 客戶、模具、規格都會隨著單子填進來自動長出來，不必事先建檔', { id: 'v1-launch' });
+  await loadMeta();
+  await load();
+}
+</script>

@@ -1,0 +1,203 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>製程流動單 填寫</title>
+<link rel="stylesheet" href="style.css">
+
+<div class="wrap">
+
+<div class="top noprint">
+  <div class="tline">
+    <a class="act" href="./">← 清單</a>
+    <h1>製程流動單</h1>
+    <span class="ver">FM-PT-01　B3</span>
+    <span class="ver" id="noTag">新單</span>
+    <div class="seg" id="segKind">
+      <button id="bST" aria-pressed="true">靜子 ST</button>
+      <button id="bRO" aria-pressed="false">轉子 RO</button>
+    </div>
+    <span class="spacer"></span>
+    <button class="act" id="btnPrint">列印</button>
+    <button class="act solid" id="btnSave">儲存</button>
+  </div>
+  <div class="hint" id="hint"></div>
+</div>
+
+<div class="printonly phead">
+  <b>製 程 流 動 單　<span id="pkind">【靜子 ST】</span></b>
+  <span>FM-PT-01　版次 B3（A4 精簡）　│　起點：模具沖壓　終點：入成品倉庫　│　本單隨貨移動，入庫後 24 小時內交回生管</span>
+</div>
+
+<div id="form"></div>
+
+<footer class="noprint">
+  <span id="rule"></span><br>
+  鑄鋁規格、鉚高、端徑目前沒有專屬欄位，請寫在「製令備註」。<br>
+  欄位由 <code>製程流動單8.28.xlsx</code> 同步產生；要改欄位請改那個檔，再跑 <code>更新流動單.bat</code>。
+</footer>
+
+</div>
+
+<script src="config.js"></script>
+<script src="banner.js"></script>
+<script src="fields.js"></script>
+<script type="module">
+import { requireLogin, get, create, update } from './db.js';
+
+const qs = new URLSearchParams(location.search);
+let NO = qs.get('no') || '';
+let KIND = qs.get('kind') === 'RO' ? 'RO' : 'ST';
+let D = {};
+let dirty = false;
+
+const draftKey = () => 'eson-draft-' + (NO || 'new-' + KIND);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function field(f) {
+  const cls = 'f' + (f.w === 2 ? ' w2' : '');
+  const v = D[f.k] || '';
+  const opts = f.list || LISTS[f.listName] || [];
+  let inner;
+  if (f.type === 'select') {
+    inner = `<select data-k="${f.k}"><option value=""></option>` +
+      opts.map(o => `<option${v === o ? ' selected' : ''}>${esc(o)}</option>`).join('') +
+      `<option${v === '其他' ? ' selected' : ''}>其他</option></select>`;
+  } else if (f.type === 'checks' || f.type === 'radio') {
+    const cur = f.type === 'checks' ? (v ? v.split('|') : []) : [v];
+    inner = '<div class="opts">' + opts.map(o =>
+      `<label><input type="${f.type === 'checks' ? 'checkbox' : 'radio'}" name="${f.k}" value="${esc(o)}" data-k="${f.k}" data-multi="${f.type === 'checks' ? 1 : 0}"${cur.includes(o) ? ' checked' : ''}>${esc(o)}</label>`
+    ).join('') + '</div>';
+  } else {
+    inner = `<input type="text" data-k="${f.k}" value="${esc(v)}">`;
+  }
+  return `<div class="${cls}"><label>${esc(f.l)}</label>${inner}${f.note ? `<div class="note">${esc(f.note)}</div>` : ''}</div>`;
+}
+
+// 靜子單勾「不適用」＝這站不走；轉子單勾「經過」有／無＝這站走不走。
+// 兩張單的語意剛好相反，鍵也不同：st{i}_na（不適用）／ st{i}_pass（經過）。
+function stationTable(list, passcol) {
+  const byPass = passcol === '經過';
+  let h = `<div class="tw"><table><thead><tr><th>工　站</th><th class="na">${esc(passcol)}</th>
+    <th>日期(進/出)</th><th>設備／爐號・溫度時間</th><th>完成數</th>
+    <th>不良數</th><th>成品檢驗</th><th>品管簽名</th></tr></thead><tbody>`;
+  list.forEach((s, i) => {
+    h += `<tr><td class="st">${esc(s.name)}</td>`;
+    if (byPass) {
+      const cur = D['st' + i + '_pass'] || '';
+      h += `<td class="na"><div class="opts">` + (s.pass_opts.length ? s.pass_opts : ['有', '無']).map(o =>
+        `<label><input type="radio" name="st${i}_pass" value="${esc(o)}" data-k="st${i}_pass" data-multi="0"${cur === o ? ' checked' : ''}>${esc(o)}</label>`
+      ).join('') + `</div></td>`;
+    } else {
+      h += `<td class="na"><input type="checkbox" data-k="st${i}_na" data-multi="0" value="不適用"${D['st' + i + '_na'] ? ' checked' : ''}></td>`;
+    }
+    ['dt', 'eq', 'done', 'ng'].forEach(c => h += `<td${c === 'ng' ? ' class="hi"' : ''}><input type="text" data-k="st${i}_${c}" value="${esc(D['st' + i + '_' + c] || '')}"></td>`);
+    h += `<td class="qc"><select data-k="st${i}_j"><option value=""></option>` +
+      ['合格', '不合格'].map(o => `<option${D['st' + i + '_j'] === o ? ' selected' : ''}>${o}</option>`).join('') +
+      `</select></td><td class="qc"><input type="text" data-k="st${i}_s" value="${esc(D['st' + i + '_s'] || '')}"></td></tr>`;
+  });
+  return h + '</tbody></table></div>';
+}
+
+function render() {
+  document.getElementById('pkind').textContent = KIND === 'ST' ? '【靜子 ST】' : '【轉子 RO】';
+  document.getElementById('noTag').textContent = NO || '新單（未儲存）';
+  document.getElementById('bST').setAttribute('aria-pressed', KIND === 'ST');
+  document.getElementById('bRO').setAttribute('aria-pressed', KIND === 'RO');
+  document.getElementById('segKind').style.display = NO ? 'none' : '';
+  document.getElementById('form').innerHTML = sections(KIND).map(s => {
+    let bodyHtml = '';
+    if (s.stations) bodyHtml += stationTable(s.stations, s.passcol);
+    if (s.f.length) bodyHtml += '<div class="grid">' + s.f.map(field).join('') + '</div>';
+    return `<section><div class="sh">${esc(s.t)}${s.who ? `<span class="who">${esc(s.who)}</span>` : ''}</div>${bodyHtml}</section>`;
+  }).join('');
+  // 轉子那張 Excel 沒有結尾的填寫規定，借靜子的顯示——規定本來就兩張單通用
+  document.getElementById('rule').textContent = formRule(KIND) || formRule('ST');
+  bind();
+}
+
+function bind() {
+  document.querySelectorAll('[data-k]').forEach(el => {
+    const ev = el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'radio' ? 'change' : 'input';
+    el.addEventListener(ev, () => {
+      const k = el.dataset.k;
+      if (el.type === 'checkbox' && el.dataset.multi === '1') {
+        D[k] = [...document.querySelectorAll(`[data-k="${k}"]:checked`)].map(x => x.value).join('|');
+      } else if (el.type === 'checkbox') {
+        D[k] = el.checked ? el.value : '';
+      } else { D[k] = el.value; }
+      dirty = true;
+      localStorage.setItem(draftKey(), JSON.stringify(D));
+      markDirty();
+      scheduleSave();
+    });
+  });
+}
+
+const markDirty = () => { document.getElementById('btnSave').textContent = dirty ? '儲存 ●' : '儲存'; };
+
+// ── 自動儲存 ──────────────────────────────────────────────
+// 停手 1.2 秒就自己存。但空白單不會自動建——至少要填了製令號、客戶或
+// 模具編號其中一個，否則手滑點一下就會生出一堆空單。
+let saveTimer = null;
+const scheduleSave = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => save(true), 1200); };
+const worthSaving = () => ['wo', 'cust', 'mold'].some(k => String(D[k] || '').trim());
+
+function status(text, tone) {
+  const el = document.getElementById('hint');
+  el.textContent = text;
+  el.style.color = tone === 'bad' ? 'var(--bad)' : tone === 'ok' ? 'var(--ok)' : '';
+}
+
+let saving = false;
+async function save(auto) {
+  if (saving) { scheduleSave(); return; }
+  if (!NO && !worthSaving()) {
+    if (!auto) status('請至少填製令號、客戶或模具編號其中一個，才能建立這張單', 'bad');
+    return;
+  }
+  saving = true;
+  const b = document.getElementById('btnSave');
+  b.disabled = true;
+  status('儲存中…');
+  try {
+    if (NO) {
+      await update(NO, D);
+    } else {
+      NO = await create(KIND, D);
+      history.replaceState({}, '', '?no=' + encodeURIComponent(NO));
+      document.getElementById('noTag').textContent = NO;
+      document.getElementById('segKind').style.display = 'none';
+    }
+    localStorage.removeItem(draftKey());
+    dirty = false;
+    status('已儲存　' + NO + '　' + new Date().toLocaleTimeString('zh-TW'), 'ok');
+  } catch (e) {
+    status('存不進去：' + e.message + '　內容留在這台裝置上，沒有不見', 'bad');
+  } finally {
+    saving = false; b.disabled = false; markDirty();
+  }
+}
+
+document.getElementById('bST').addEventListener('click', () => { KIND = 'ST'; D = JSON.parse(localStorage.getItem(draftKey()) || '{}'); render(); });
+document.getElementById('bRO').addEventListener('click', () => { KIND = 'RO'; D = JSON.parse(localStorage.getItem(draftKey()) || '{}'); render(); });
+document.getElementById('btnPrint').addEventListener('click', () => window.print());
+document.getElementById('btnSave').addEventListener('click', () => { clearTimeout(saveTimer); save(false); });
+
+if (await requireLogin()) {
+  banner('打完停手一下就會自己存，不用按儲存。上面會顯示「已儲存」和單號', { id: 'form-autosave', plain: true });
+  if (NO) {
+    const rec = await get(NO);
+    if (!rec) { alert('查無此單：' + NO); location.href = './'; }
+    else {
+      D = rec.data; KIND = rec.kind;
+      const draft = localStorage.getItem(draftKey());
+      if (draft && confirm('這台裝置上有尚未儲存的草稿，要接續編輯嗎？\n（選取消＝使用資料庫上的版本）')) {
+        D = JSON.parse(draft); dirty = true;
+      }
+    }
+  } else {
+    D = JSON.parse(localStorage.getItem(draftKey()) || '{}');
+  }
+  render(); markDirty();
+}
+</script>
