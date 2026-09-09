@@ -6,8 +6,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <!-- ui.css 提供登入遮罩與工控外殼；style.css 後載，表單本體與 A4 列印樣式以它為準 -->
-<link rel="stylesheet" href="ui.css?v=1788939394">
-<link rel="stylesheet" href="style.css?v=1788939394">
+<link rel="stylesheet" href="ui.css?v=1788939537">
+<link rel="stylesheet" href="style.css?v=1788939537">
 
 <div class="wrap">
 
@@ -16,11 +16,11 @@
     <a class="logo" href="./" title="回清單"><i data-lucide="arrow-left"></i></a>
     <div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <h1 id="ptitle">靜子 ST 流動單</h1>
-        <span class="chipver">FM-PT-01 · B3</span>
+        <h1 id="ptitle">靜子 ST 做法</h1>
+        <span class="chipver">FM-PT-01 · B4</span>
         <span class="chipver" id="noTag">新單</span>
       </div>
-      <div class="sub" id="hint">照紙本由上往下填，停手一下就會自己存</div>
+      <div class="sub" id="hint">這一筆記的是「這個料號怎麼做」，停手一下就會自己存</div>
     </div>
   </div>
   <div class="headtools">
@@ -35,7 +35,7 @@
 
 <div class="printonly phead">
   <b>製 程 流 動 單　<span id="pkind">【靜子 ST】</span></b>
-  <span>FM-PT-01　版次 B3（A4 精簡）　│　起點：模具沖壓　終點：入成品倉庫　│　本單隨貨移動，入庫後 24 小時內交回生管</span>
+  <span>FM-PT-01　版次 B4（做法主檔）　│　一筆＝一個成品料號的做法　│　接單時印出給現場照做，不隨貨、不交回</span>
 </div>
 
 <div id="form"></div>
@@ -49,11 +49,11 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1788939394"></script>
-<script src="banner.js?v=1788939394"></script>
-<script src="fields.js?v=1788939394"></script>
+<script src="config.js?v=1788939537"></script>
+<script src="banner.js?v=1788939537"></script>
+<script src="fields.js?v=1788939537"></script>
 <script type="module">
-import { requireLogin, get, create, update } from './db.js?v=1788939394';
+import { requireLogin, get, create, update } from './db.js?v=1788939537';
 
 const qs = new URLSearchParams(location.search);
 let NO = qs.get('no') || '';
@@ -84,34 +84,27 @@ function field(f) {
   return `<div class="${cls}"><label>${esc(f.l)}</label>${inner}${f.note ? `<div class="note">${esc(f.note)}</div>` : ''}</div>`;
 }
 
-// 靜子單勾「不適用」＝這站不走；轉子單勾「經過」有／無＝這站走不走。
-// 兩張單的語意剛好相反，鍵也不同：st{i}_na（不適用）／ st{i}_pass（經過）。
+// B4 做法主檔：加工站只剩「走過哪些站」與「用什麼設備／爐號／溫度時間」。
+// 日期、完成數、不良數、檢驗、簽名那五欄是批次紀錄，已隨改版拿掉。
 function stationTable(list, passcol) {
-  const byPass = passcol === '經過';
   let h = `<div class="tw"><table><thead><tr><th>工　站</th><th class="na">${esc(passcol)}</th>
-    <th>日期(進/出)</th><th>設備／爐號・溫度時間</th><th>完成數</th>
-    <th>不良數</th><th>成品檢驗</th><th>品管簽名</th></tr></thead><tbody>`;
+    <th>設備／爐號・溫度時間</th></tr></thead><tbody>`;
   list.forEach((s, i) => {
-    h += `<tr><td class="st">${esc(s.name)}</td>`;
-    if (byPass) {
-      const cur = D['st' + i + '_pass'] || '';
-      h += `<td class="na"><div class="opts">` + (s.pass_opts.length ? s.pass_opts : ['有', '無']).map(o =>
+    const cur = D['st' + i + '_pass'] || '';
+    const opts = s.pass_opts && s.pass_opts.length ? s.pass_opts : ['有', '無'];
+    h += `<tr><td class="st">${esc(s.name)}</td>
+      <td class="na"><div class="opts">` + opts.map(o =>
         `<label><input type="radio" name="st${i}_pass" value="${esc(o)}" data-k="st${i}_pass" data-multi="0"${cur === o ? ' checked' : ''}>${esc(o)}</label>`
-      ).join('') + `</div></td>`;
-    } else {
-      h += `<td class="na"><input type="checkbox" data-k="st${i}_na" data-multi="0" value="不適用"${D['st' + i + '_na'] ? ' checked' : ''}></td>`;
-    }
-    ['dt', 'eq', 'done', 'ng'].forEach(c => h += `<td${c === 'ng' ? ' class="hi"' : ''}><input type="text" data-k="st${i}_${c}" value="${esc(D['st' + i + '_' + c] || '')}"></td>`);
-    h += `<td class="qc"><select data-k="st${i}_j"><option value=""></option>` +
-      ['合格', '不合格'].map(o => `<option${D['st' + i + '_j'] === o ? ' selected' : ''}>${o}</option>`).join('') +
-      `</select></td><td class="qc"><input type="text" data-k="st${i}_s" value="${esc(D['st' + i + '_s'] || '')}"></td></tr>`;
+      ).join('') + `</div></td>
+      <td><input type="text" data-k="st${i}_eq" value="${esc(D['st' + i + '_eq'] || '')}"
+          placeholder="例：3號爐 720℃ 2天"></td></tr>`;
   });
   return h + '</tbody></table></div>';
 }
 
 function render() {
   document.getElementById('pkind').textContent = KIND === 'ST' ? '【靜子 ST】' : '【轉子 RO】';
-  document.getElementById('ptitle').textContent = KIND === 'ST' ? '靜子 ST 流動單' : '轉子 RO 流動單';
+  document.getElementById('ptitle').textContent = KIND === 'ST' ? '靜子 ST 做法' : '轉子 RO 做法';
   document.getElementById('noTag').textContent = NO || '新單（未儲存）';
   document.getElementById('bST').setAttribute('aria-pressed', KIND === 'ST');
   document.getElementById('bRO').setAttribute('aria-pressed', KIND === 'RO');
@@ -153,11 +146,12 @@ const markDirty = () => {
 const icons = () => { try { lucide.createIcons(); } catch (e) {} };
 
 // ── 自動儲存 ──────────────────────────────────────────────
-// 停手 1.2 秒就自己存。但空白單不會自動建——至少要填了製令號、客戶或
-// 模具編號其中一個，否則手滑點一下就會生出一堆空單。
+// 停手 1.2 秒就自己存。但空白的不會自動建——至少要填了客戶、模具編號或
+// 模具規格其中一個，否則手滑點一下就會生出一堆空筆。
+// （B4 改版拿掉了製令號，原本的判斷條件跟著改。）
 let saveTimer = null;
 const scheduleSave = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => save(true), 1200); };
-const worthSaving = () => ['wo', 'cust', 'mold'].some(k => String(D[k] || '').trim());
+const worthSaving = () => ['cust', 'mold', 'spec'].some(k => String(D[k] || '').trim());
 
 function status(text, tone) {
   const el = document.getElementById('hint');
@@ -170,7 +164,7 @@ let saving = false;
 async function save(auto) {
   if (saving) { scheduleSave(); return; }
   if (!NO && !worthSaving()) {
-    if (!auto) status('請至少填製令號、客戶或模具編號其中一個，才能建立這張單', 'bad');
+    if (!auto) status('請至少填客戶、模具編號或模具規格其中一個，才能建立這一筆', 'bad');
     return;
   }
   saving = true;

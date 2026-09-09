@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ui.css?v=1788939394">
+<link rel="stylesheet" href="ui.css?v=1788939537">
 
 <div class="shell">
 
@@ -16,9 +16,9 @@
       <div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <h1>eson-flow</h1>
-          <span class="chipver">FM-PT-01 · B3</span>
+          <span class="chipver">FM-PT-01 · B4</span>
         </div>
-        <div class="sub">馬達鐵芯 製程流動單　追蹤與查詢工作台</div>
+        <div class="sub">馬達鐵芯 產品做法主檔　一筆＝一個成品料號怎麼做</div>
       </div>
     </div>
     <div class="headtools">
@@ -37,7 +37,7 @@
   <section id="topgrid" style="display:grid;grid-template-columns:1.35fr 1fr;gap:14px">
     <div class="card tabs">
       <button class="tab" data-kind="" aria-pressed="true">
-        <span class="n">全部流動單</span><span class="c" id="cAll">(0)</span></button>
+        <span class="n">全部做法</span><span class="c" id="cAll">(0)</span></button>
       <button class="tab" data-kind="ST" aria-pressed="false">
         <span class="n">靜子 ST</span><span class="c" id="cST">(0)</span></button>
       <button class="tab" data-kind="RO" aria-pressed="false">
@@ -45,9 +45,9 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <a class="btn dark lg" style="justify-content:center" href="form.html?kind=ST">
-        <i data-lucide="plus-circle"></i><span>＋ 靜子 ST 開單</span></a>
+        <i data-lucide="plus-circle"></i><span>＋ 建立靜子做法</span></a>
       <a class="btn blue lg" style="justify-content:center" href="form.html?kind=RO">
-        <i data-lucide="plus-circle"></i><span>＋ 轉子 RO 開單</span></a>
+        <i data-lucide="plus-circle"></i><span>＋ 建立轉子做法</span></a>
     </div>
   </section>
 
@@ -63,7 +63,7 @@
         <p>主檔沒有預先建立——客戶、模具、規格都是這些單自己長出來的。單子還少的時候搜不到東西是正常的。等累積到三、五十張，再回頭看實際出現過哪些組合，那時候才有依據決定「同規格」該怎麼定義。</p>
       </div>
       <div class="gauge">
-        <div class="t"><span>已累積流動單</span><b id="gNum">0 / 50 張</b></div>
+        <div class="t"><span>已建立做法</span><b id="gNum">0 / 50 張</b></div>
         <div class="bar"><i id="gBar" style="width:0%"></i></div>
         <div class="f"><span id="gPct">已達成 0%</span><span id="gLeft">還差 50 張</span></div>
       </div>
@@ -99,10 +99,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1788939394"></script>
-<script src="fields.js?v=1788939394"></script>
+<script src="config.js?v=1788939537"></script>
+<script src="fields.js?v=1788939537"></script>
 <script type="module">
-import { requireLogin, list, meta, logout, currentEmail } from './db.js?v=1788939394';
+import { requireLogin, list, meta, logout, currentEmail } from './db.js?v=1788939537';
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
@@ -164,7 +164,7 @@ function render() {
     ? `顯示 ${ROWS.length} 張` + (CUSTF ? `　·　客戶：${CUSTF}` : '')
     : '沒有符合的單';
   if (!ROWS.length) {
-    $('body').innerHTML = `<div class="empty"><b>還沒有符合的流動單</b>
+    $('body').innerHTML = `<div class="empty"><b>還沒有符合的做法</b>
       系統是空的沒關係——它靠現場填進來的單長大。<br>
       按上面「＋ 靜子 ST 開單」或「＋ 轉子 RO 開單」建第一張。</div>`;
     return;
