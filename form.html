@@ -6,27 +6,32 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <!-- ui.css 提供登入遮罩與工控外殼；style.css 後載，表單本體與 A4 列印樣式以它為準 -->
-<link rel="stylesheet" href="ui.css?v=1788918359">
-<link rel="stylesheet" href="style.css?v=1788918359">
+<link rel="stylesheet" href="ui.css?v=1788918976">
+<link rel="stylesheet" href="style.css?v=1788918976">
 
 <div class="wrap">
 
-<div class="top noprint">
-  <div class="tline">
-    <a class="act" href="./">← 清單</a>
-    <h1>製程流動單</h1>
-    <span class="ver">FM-PT-01　B3</span>
-    <span class="ver" id="noTag">新單</span>
+<header class="card head formhead noprint">
+  <div class="brand">
+    <a class="logo" href="./" title="回清單"><i data-lucide="arrow-left"></i></a>
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <h1 id="ptitle">靜子 ST 流動單</h1>
+        <span class="chipver">FM-PT-01 · B3</span>
+        <span class="chipver" id="noTag">新單</span>
+      </div>
+      <div class="sub" id="hint">照紙本由上往下填，停手一下就會自己存</div>
+    </div>
+  </div>
+  <div class="headtools">
     <div class="seg" id="segKind">
       <button id="bST" aria-pressed="true">靜子 ST</button>
       <button id="bRO" aria-pressed="false">轉子 RO</button>
     </div>
-    <span class="spacer"></span>
-    <button class="act" id="btnPrint">列印</button>
-    <button class="act solid" id="btnSave">儲存</button>
+    <button class="btn" id="btnPrint"><i data-lucide="printer"></i><span>列印</span></button>
+    <button class="btn dark" id="btnSave"><i data-lucide="save"></i><span>儲存</span></button>
   </div>
-  <div class="hint" id="hint"></div>
-</div>
+</header>
 
 <div class="printonly phead">
   <b>製 程 流 動 單　<span id="pkind">【靜子 ST】</span></b>
@@ -35,7 +40,7 @@
 
 <div id="form"></div>
 
-<footer class="noprint">
+<footer class="noprint note">
   <span id="rule"></span><br>
   鑄鋁規格、鉚高、端徑目前沒有專屬欄位，請寫在「製令備註」。<br>
   欄位由 <code>製程流動單8.28.xlsx</code> 同步產生；要改欄位請改那個檔，再跑 <code>更新流動單.bat</code>。
@@ -43,11 +48,12 @@
 
 </div>
 
-<script src="config.js?v=1788918359"></script>
-<script src="banner.js?v=1788918359"></script>
-<script src="fields.js?v=1788918359"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="config.js?v=1788918976"></script>
+<script src="banner.js?v=1788918976"></script>
+<script src="fields.js?v=1788918976"></script>
 <script type="module">
-import { requireLogin, get, create, update } from './db.js?v=1788918359';
+import { requireLogin, get, create, update } from './db.js?v=1788918976';
 
 const qs = new URLSearchParams(location.search);
 let NO = qs.get('no') || '';
@@ -105,6 +111,7 @@ function stationTable(list, passcol) {
 
 function render() {
   document.getElementById('pkind').textContent = KIND === 'ST' ? '【靜子 ST】' : '【轉子 RO】';
+  document.getElementById('ptitle').textContent = KIND === 'ST' ? '靜子 ST 流動單' : '轉子 RO 流動單';
   document.getElementById('noTag').textContent = NO || '新單（未儲存）';
   document.getElementById('bST').setAttribute('aria-pressed', KIND === 'ST');
   document.getElementById('bRO').setAttribute('aria-pressed', KIND === 'RO');
@@ -118,6 +125,7 @@ function render() {
   // 轉子那張 Excel 沒有結尾的填寫規定，借靜子的顯示——規定本來就兩張單通用
   document.getElementById('rule').textContent = formRule(KIND) || formRule('ST');
   bind();
+  icons();
 }
 
 function bind() {
@@ -138,7 +146,11 @@ function bind() {
   });
 }
 
-const markDirty = () => { document.getElementById('btnSave').textContent = dirty ? '儲存 ●' : '儲存'; };
+// 只換按鈕裡的文字，不要動到圖示
+const markDirty = () => {
+  document.querySelector('#btnSave span').textContent = dirty ? '儲存 ●' : '儲存';
+};
+const icons = () => { try { lucide.createIcons(); } catch (e) {} };
 
 // ── 自動儲存 ──────────────────────────────────────────────
 // 停手 1.2 秒就自己存。但空白單不會自動建——至少要填了製令號、客戶或
@@ -150,7 +162,8 @@ const worthSaving = () => ['wo', 'cust', 'mold'].some(k => String(D[k] || '').tr
 function status(text, tone) {
   const el = document.getElementById('hint');
   el.textContent = text;
-  el.style.color = tone === 'bad' ? 'var(--bad)' : tone === 'ok' ? 'var(--ok)' : '';
+  el.style.color = tone === 'bad' ? '#B91C1C' : tone === 'ok' ? '#059669' : '';
+  el.style.fontWeight = tone ? '700' : '';
 }
 
 let saving = false;

@@ -78,6 +78,12 @@ body{margin:0;background:var(--page);color:var(--s700);font-family:var(--font);
 .btn:disabled{opacity:.55;cursor:default}
 .btn.lg{min-height:44px;font-size:14px;padding:10px 16px}
 
+/* 填寫頁的頁首：長表單捲動時把「儲存」與狀態留在畫面上 */
+.formhead{position:sticky;top:12px;z-index:30;margin:20px 0 4px}
+.formhead .logo{text-decoration:none;transition:.13s}
+.formhead .logo:hover{background:var(--b700)}
+.formhead .sub{transition:color .15s}
+
 /* ── 分類頁籤 ─────────────────────────────────── */
 .tabs{display:flex;gap:8px;padding:8px}
 .tab{flex:1;font:inherit;cursor:pointer;border:1px solid transparent;border-radius:var(--r-sm);

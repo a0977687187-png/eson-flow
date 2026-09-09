@@ -1,17 +1,18 @@
-/* 製程流動單 —— 視覺層
-   現場語意色（品管綠、統計淺黃、新增橘）不可挪用，其餘外殼走乾淨卡片風。 */
+/* 製程流動單 填寫頁 —— 表單本體與 A4 列印樣式
+   色票已對齊 ui.css 的工控色階（變數名稱刻意不動，所以版面與列印規則完全不受影響）。
+   現場語意色不可挪用：品管綠、統計淺黃 #FFF8E1、新增橘——那是紙本沿用下來的視覺提示。 */
 :root{
-  --ground:#F6F7F9;--surface:#FFFFFF;--surface-2:#F2F4F7;--surface-3:#E7EBF0;
-  --ink:#0F1419;--ink-2:#4A5462;--ink-3:#8A94A3;
-  --rule:#E3E8EE;--rule-2:#CFD6DF;
-  --accent:#1F6F8B;--accent-soft:#E8F2F6;--ring:rgba(31,111,139,.22);
-  --need:#A8501C;--need-soft:#FCF3EA;
-  --qc:#2C6650;--qc-soft:#EAF3EE;
+  --ground:#F4F6F9;--surface:#FFFFFF;--surface-2:#F1F5F9;--surface-3:#E2E8F0;
+  --ink:#0F172A;--ink-2:#475569;--ink-3:#94A3B8;
+  --rule:#E2E8F0;--rule-2:#CBD5E1;
+  --accent:#0F2744;--accent-soft:#F0F9FF;--ring:rgba(2,132,199,.20);
+  --need:#B45309;--need-soft:#FFFBEB;
+  --qc:#059669;--qc-soft:#ECFDF5;
   --stat:#FFF8E1;                     /* 會進系統統計的數字欄位，專用色 */
-  --ok:#1a7a3c;--warn:#8a5a00;--bad:#b02020;
+  --ok:#059669;--warn:#B45309;--bad:#B91C1C;
   --r:12px;--r-sm:8px;
-  --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
-  --shadow-lg:0 4px 12px rgba(16,24,40,.07);
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06);
+  --shadow-lg:0 10px 30px rgba(11,25,44,.10);
 }
 /* 一律白底。原本會跟著作業系統的深色模式自動變黑，現場反映看不習慣，
    所以拿掉自動切換。下面那段 [data-theme="dark"] 保留著——哪天想加
@@ -29,10 +30,10 @@
 
 *{box-sizing:border-box}
 body{margin:0;background:var(--ground);color:var(--ink);
-  font-family:"Noto Sans TC",-apple-system,"Microsoft JhengHei",sans-serif;
+  font-family:"Hanken Grotesk","Noto Sans TC",-apple-system,"Microsoft JhengHei",sans-serif;
   font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%;
   -webkit-font-smoothing:antialiased}
-.wrap{max-width:1200px;margin:0 auto;padding:0 16px 120px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px 110px}
 
 /* ── 公告橫幅 ─────────────────────────────────── */
 .banner{position:relative;height:2rem;display:flex;align-items:center;justify-content:center;
