@@ -135,10 +135,17 @@ const FORM = {
   },
   {
    "op": "field",
+   "k": "packway",
+   "l": "包裝方式",
+   "type": "text",
+   "w": 26
+  },
+  {
+   "op": "field",
    "k": "worem",
    "l": "製令備註",
    "type": "text",
-   "w": 44
+   "w": 26
   },
   {
    "op": "field",
@@ -177,6 +184,17 @@ const FORM = {
   },
   {
    "op": "field",
+   "k": "o_vent",
+   "l": "風孔",
+   "type": "radio",
+   "w": 8,
+   "list": [
+    "有",
+    "無"
+   ]
+  },
+  {
+   "op": "field",
    "k": "o_foot",
    "l": "足片別",
    "type": "radio",
@@ -206,14 +224,10 @@ const FORM = {
   },
   {
    "op": "field",
-   "k": "o_vent",
-   "l": "風孔",
-   "type": "radio",
-   "w": 8,
-   "list": [
-    "有",
-    "無"
-   ]
+   "k": "shipto",
+   "l": "送貨地點",
+   "type": "text",
+   "w": 8
   },
   {
    "op": "field",
@@ -260,8 +274,8 @@ const FORM = {
   },
   {
    "op": "field",
-   "k": "packway",
-   "l": "包裝方式",
+   "k": "skewset",
+   "l": "斜度設定值",
    "type": "text",
    "w": 7
   },
@@ -572,6 +586,13 @@ const FORM = {
   },
   {
    "op": "field",
+   "k": "o_vent",
+   "l": "風孔",
+   "type": "text",
+   "w": 8
+  },
+  {
+   "op": "field",
    "k": "o_markhole",
    "l": "記號孔",
    "type": "radio",
@@ -637,8 +658,8 @@ const FORM = {
   },
   {
    "op": "field",
-   "k": "o_vent",
-   "l": "風孔",
+   "k": "o_laser",
+   "l": "雷雕",
    "type": "radio",
    "w": 9,
    "list": [
@@ -648,14 +669,10 @@ const FORM = {
   },
   {
    "op": "field",
-   "k": "o_laser",
-   "l": "雷雕",
-   "type": "radio",
-   "w": 9,
-   "list": [
-    "有",
-    "無"
-   ]
+   "k": "shipto",
+   "l": "送貨地點",
+   "type": "text",
+   "w": 9
   },
   {
    "op": "field",
@@ -671,10 +688,17 @@ const FORM = {
   },
   {
    "op": "field",
+   "k": "packway",
+   "l": "包裝方式",
+   "type": "text",
+   "w": 26
+  },
+  {
+   "op": "field",
    "k": "worem",
    "l": "製令備註",
    "type": "text",
-   "w": 44
+   "w": 26
   },
   {
    "op": "sec",
