@@ -11,8 +11,9 @@
   --b500:#0284C7; --b400:#38BDF8; --b100:#E0F2FE; --b50:#F0F9FF;
 
   --page:#F4F6F9; --card:#FFFFFF; --line:#E2E8F0; --line-2:#CBD5E1;
-  --s50:#F8FAFC; --s100:#F1F5F9; --s400:#94A3B8; --s500:#64748B;
-  --s600:#475569; --s700:#334155; --s900:#0F172A;
+  /* s400 原本 #94A3B8（白底對比 3.2:1），現場反映太淺，整階調深 */
+  --s50:#F8FAFC; --s100:#F1F5F9; --s400:#64748B; --s500:#475569;
+  --s600:#334155; --s700:#1E293B; --s900:#0F172A;
 
   --ok:#059669; --ok-bg:#ECFDF5; --ok-line:#A7F3D0;
   --warn:#B45309; --warn-bg:#FFFBEB; --warn-line:#FDE68A;
@@ -137,9 +138,11 @@ body{margin:0;background:var(--page);color:var(--s700);font-family:var(--font);
 /* ── 表格 ─────────────────────────────────────── */
 .tablewrap{overflow-x:auto}
 table.rows{width:100%;border-collapse:collapse;min-width:980px;font-size:13px}
+/* 表頭是中文，uppercase 沒作用、letter-spacing 反而把字拆散；
+   11px + s500 在現場也太小太淺。 */
 table.rows thead th{background:var(--s50);border-bottom:1px solid var(--line);
-  padding:11px 14px;text-align:left;font-size:11px;font-weight:800;color:var(--s500);
-  letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+  padding:11px 14px;text-align:left;font-size:12.5px;font-weight:800;color:var(--s900);
+  white-space:nowrap}
 table.rows tbody td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
 table.rows tbody tr{cursor:pointer;transition:.1s}
 table.rows tbody tr:hover td{background:#F8FAFC}
@@ -175,9 +178,8 @@ td.strong{font-weight:700;color:var(--s900)}
 .detail .kv > div{padding:10px 14px;border-bottom:1px solid var(--line);
   border-right:1px solid var(--line);min-width:0}
 .detail .kv > div:nth-child(2n){border-right:none}
-.detail .kv .k{font-size:11px;font-weight:700;color:var(--s500);letter-spacing:.02em;
-  margin-bottom:3px}
-.detail .kv .v{font-size:13.5px;color:var(--s900);word-break:break-word}
+.detail .kv .k{font-size:13px;font-weight:700;color:var(--s900);margin-bottom:4px}
+.detail .kv .v{font-size:14px;color:var(--s700);word-break:break-word}
 .detail .act{padding:12px 14px}
 @media (max-width:720px){.detail .kv{grid-template-columns:1fr}
   .detail .kv > div{border-right:none}}
