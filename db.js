@@ -6,36 +6,27 @@ const CFG = window.ESON_CONFIG || {};
 export const configured = Boolean(CFG.url && CFG.anonKey);
 export const db = configured ? createClient(CFG.url, CFG.anonKey) : null;
 
-// ── 衍生值（規格書 §6）──────────────────────────────────────
-// 一律即時算，不存進資料庫。定義改了就改這裡，不用回頭修資料。
-const COMPLETE_KEYS = ['wo', 'cust', 'mold', 'spec', 'slots', 'proddate',
-  'press', 'done', 'boxtype', 'indate', 'inqty', 'pnfin'];
-
-const num = v => {
-  const m = String(v == null ? '' : v).match(/-?\d+(?:\.\d+)?/);
-  return m ? Number(m[0]) : 0;
-};
+// ── 衍生值 ──────────────────────────────────────────────────
+// 2026-09-09 改成做法主檔之後，狀態（待開工／生產中／完成）、不良合計、良率
+// 全部拿掉——那是「這一批做得如何」，做法主檔沒有批次，算不出也沒意義。
+// 剩下的只有「這筆做法記得多完整」與「走過哪些站」。
+const COMPLETE_KEYS = ['cust', 'mold', 'spec', 'slots', 'mat', 'stack',
+  'skew', 'press', 'boxtype', 'perbox', 'shipto', 'packway'];
 
 export function derive(d) {
-  const status = d.indate ? '完成' : (d.proddate ? '生產中' : '待開工');
   const filled = COMPLETE_KEYS.filter(k => String(d[k] || '').trim() !== '').length;
   const complete = Math.round(filled / COMPLETE_KEYS.length * 100);
 
-  // 靜子勾「不適用」＝不走；轉子勾「經過：無」＝不走。兩張單語意相反。
-  const skipped = i => Boolean(d['st' + i + '_na']) || d['st' + i + '_pass'] === '無';
-
-  let ng = num(d.ng);
-  for (let i = 0; i < 12; i++) if (!skipped(i)) ng += num(d['st' + i + '_ng']);
-
-  const outQ = num(d.done), inQ = num(d.inqty);
-  const yieldPct = (outQ > 0 && inQ > 0) ? Math.round(inQ / outQ * 1000) / 10 : null;
-
+  // 加工站現在只剩「經過 有/無」與設備參數。勾「無」就是不走這一站。
   const stepsUsed = [];
   for (let i = 0; i < 12; i++) {
-    const filledRow = ['dt', 'eq', 'done', 'ng', 'j'].some(c => d['st' + i + '_' + c]);
-    if (!skipped(i) && (filledRow || d['st' + i + '_pass'] === '有')) stepsUsed.push(i);
+    const pass = d['st' + i + '_pass'];
+    const na = Boolean(d['st' + i + '_na']);        // 舊資料用過的欄位，仍要認得
+    const param = String(d['st' + i + '_eq'] || '').trim();
+    if (na || pass === '無') continue;
+    if (pass === '有' || param) stepsUsed.push(i);
   }
-  return { status, complete, ngTotal: ng, yieldPct, stepsUsed };
+  return { complete, stepsUsed };
 }
 
 const shape = r => ({

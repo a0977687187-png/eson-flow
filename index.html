@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ui.css?v=1788926045">
+<link rel="stylesheet" href="ui.css?v=1788939394">
 
 <div class="shell">
 
@@ -99,10 +99,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1788926045"></script>
-<script src="fields.js?v=1788926045"></script>
+<script src="config.js?v=1788939394"></script>
+<script src="fields.js?v=1788939394"></script>
 <script type="module">
-import { requireLogin, list, meta, logout, currentEmail } from './db.js?v=1788926045';
+import { requireLogin, list, meta, logout, currentEmail } from './db.js?v=1788939394';
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
@@ -114,7 +114,6 @@ const optFields = kind => FORM[kind].filter(i => i.op === 'field' && i.k.startsW
   .map(i => [i.k, i.l.replace(/\s*[∩φ]\s*$/, '').trim()]);
 const stationsOf = kind => (FORM[kind].find(i => i.op === 'stations') || { list: [] }).list;
 
-const stateCls = s => s === '完成' ? 'done' : s === '生產中' ? 'run' : 'wait';
 const pctCls = p => p > 85 ? 'hi' : p > 50 ? 'mid' : 'lo';
 
 // 這一段就是「以前怎麼做的」——不必開整張單就看得到
@@ -138,15 +137,21 @@ function howMade(r) {
     .filter(Boolean).join('、').replace(/\|/g, '、');
 
   push('模具', [d.mold, d.spec, d.slots && d.slots + '槽'].filter(Boolean).join('　'));
+  push('料號', [d.pnfin && '成品 ' + d.pnfin, d.custpn && '客戶 ' + d.custpn].filter(Boolean).join('　'));
   push('材質・軸孔・疊厚・斜度', [d.mat, d.shaft && 'φ' + d.shaft, d.stack, d.skew].filter(Boolean).join('　'));
-  push('沖壓', [d.press && '沖床 ' + d.press, d.skewset && '斜度設定 ' + d.skewset, d.done && '完成 ' + d.done].filter(Boolean).join('　'));
+  push('積層・廠別', [d.form, d.plant].filter(Boolean).join('　'));
+  push('沖壓', [d.press && '沖床 ' + d.press, d.skewset && '斜度設定 ' + d.skewset].filter(Boolean).join('　'));
   push('沖壓選配', opts.join('　'));
   push('走過的站', walked.join(' → ') || '（未填）');
+  // 各站的爐號／溫度／時間才是「怎麼做」的關鍵，要列出來
+  push('製程參數', r.stepsUsed
+    .map(i => d['st' + i + '_eq'] && ((stations[i] ? stations[i].name : '?').replace(/\s/g, '') + ' ' + d['st' + i + '_eq']))
+    .filter(Boolean).join('　'));
   push('後製程', post);
   push('委外', [d.out1, d.outv].filter(Boolean).join(' / ').replace(/\|/g, '、'));
-  push('包裝', [d.boxtype, d.perbox && '每箱 ' + d.perbox, d.boxes && d.boxes + ' 箱'].filter(Boolean).join('　'));
-  push('入庫', [d.indate, d.inqty && d.inqty + ' 只', d.inloc].filter(Boolean).join('　'));
-  push('製令備註', d.worem);
+  push('包裝', [d.boxtype, d.perbox && '每箱 ' + d.perbox, d.packway, d.labeltxt && '標籤 ' + d.labeltxt].filter(Boolean).join('　'));
+  push('送貨地點', d.shipto);
+  push('備註', d.worem);
 
   return `<div class="detail"><div class="kv">` +
     bits.map(([k, v]) => `<div><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join('') +
@@ -164,14 +169,15 @@ function render() {
       按上面「＋ 靜子 ST 開單」或「＋ 轉子 RO 開單」建第一張。</div>`;
     return;
   }
+  // 做法主檔沒有批次，所以沒有數量／狀態／不良——換成能辨識產品的欄位
   let h = `<div class="tablewrap"><table class="rows"><thead><tr>
-    <th>單號</th><th>類別</th><th>客戶</th><th>模具 / 規格</th><th>槽數</th>
-    <th>軸孔</th><th>疊厚</th><th style="text-align:right">數量</th>
-    <th>狀態</th><th style="text-align:right">完整度</th><th style="text-align:right">不良</th>
+    <th>編號</th><th>類別</th><th>客戶</th><th>模具 / 規格</th><th>槽數</th>
+    <th>材質</th><th>軸孔</th><th>疊厚</th><th>料號</th>
+    <th style="text-align:right">做法完整度</th>
     </tr></thead><tbody>`;
   ROWS.forEach(r => {
     const d = r.data;
-    const ic = r.status === '完成' ? 'check-circle' : r.kind === 'RO' ? 'rotate-cw' : 'file-text';
+    const ic = r.kind === 'RO' ? 'rotate-cw' : 'file-text';
     h += `<tr data-no="${esc(r.no)}"${OPEN === r.no ? ' class="open"' : ''}>
       <td class="no"><span class="ic"><i data-lucide="${ic}"></i></span>${esc(r.no)}</td>
       <td><span class="tag ${r.kind}">${r.kind === 'ST' ? '靜子 ST' : '轉子 RO'}</span></td>
@@ -179,13 +185,12 @@ function render() {
       <td><div class="strong">${esc(d.mold) || '—'}</div>
           <div class="mono" style="font-size:11px;color:var(--s400)">${esc(d.spec) || ''}</div></td>
       <td class="mono">${esc(d.slots)}</td>
+      <td class="mono">${esc(d.mat)}</td>
       <td class="mono">${esc(d.shaft)}</td>
       <td class="mono">${esc(d.stack)}</td>
-      <td class="num">${esc(d.qty)}</td>
-      <td><span class="state ${stateCls(r.status)}"><i></i>${r.status}</span></td>
-      <td class="num"><span class="pct ${pctCls(r.complete)}">${r.complete}%</span></td>
-      <td class="num">${r.ngTotal || ''}</td></tr>`;
-    if (OPEN === r.no) h += `<tr><td colspan="11" style="padding:0">${howMade(r)}</td></tr>`;
+      <td class="mono" style="font-size:11px">${esc(d.pnfin || d.custpn)}</td>
+      <td class="num"><span class="pct ${pctCls(r.complete)}">${r.complete}%</span></td></tr>`;
+    if (OPEN === r.no) h += `<tr><td colspan="10" style="padding:0">${howMade(r)}</td></tr>`;
   });
   $('body').innerHTML = h + '</tbody></table></div>';
   document.querySelectorAll('tr[data-no]').forEach(tr => tr.addEventListener('click', () => {

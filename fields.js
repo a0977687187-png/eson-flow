@@ -15,15 +15,8 @@ const FORM = {
  "ST": [
   {
    "op": "sec",
-   "title": "壹、製令資訊",
-   "note": "沖壓站填寫，兩張單同時複寫"
-  },
-  {
-   "op": "field",
-   "k": "wo",
-   "l": "製令號",
-   "type": "text",
-   "w": 8
+   "title": "壹、產品識別",
+   "note": "這一筆是哪一個成品——客戶＋模具規格＋槽數就是它的身分"
   },
   {
    "op": "field",
@@ -45,6 +38,54 @@ const FORM = {
    "l": "模具規格",
    "type": "text",
    "w": 8
+  },
+  {
+   "op": "field",
+   "k": "slots",
+   "l": "定子槽數",
+   "type": "text",
+   "w": 8
+  },
+  {
+   "op": "field",
+   "k": "custpn",
+   "l": "客戶料號",
+   "type": "text",
+   "w": 8
+  },
+  {
+   "op": "field",
+   "k": "pnfin",
+   "l": "成品料號",
+   "type": "text",
+   "w": 8
+  },
+  {
+   "op": "field",
+   "k": "form",
+   "l": "積層形式",
+   "type": "radio",
+   "w": 8,
+   "list": [
+    "全自鉚",
+    "半自鉚"
+   ]
+  },
+  {
+   "op": "field",
+   "k": "plant",
+   "l": "廠別",
+   "type": "radio",
+   "w": 8,
+   "list": [
+    "一廠",
+    "二廠"
+   ]
+  },
+  {
+   "op": "sec",
+   "title": "貳、材料與規格",
+   "note": ""
   },
   {
    "op": "field",
@@ -77,75 +118,35 @@ const FORM = {
    "listName": "SKEW"
   },
   {
-   "op": "field",
-   "k": "qty",
-   "l": "訂單數量",
-   "type": "text",
-   "w": 8
+   "op": "sec",
+   "title": "參、沖壓做法",
+   "note": "斜度設定值＝機台怎麼調才沖得出上面那個斜度規格"
   },
   {
    "op": "field",
-   "k": "due",
-   "l": "交期",
+   "k": "press",
+   "l": "沖床台號",
    "type": "text",
-   "w": 8
+   "w": 15
   },
   {
    "op": "field",
-   "k": "form",
-   "l": "積層形式",
+   "k": "skewset",
+   "l": "斜度設定值",
+   "type": "text",
+   "w": 15
+  },
+  {
+   "op": "field",
+   "k": "o_pos2",
+   "l": "料位",
    "type": "radio",
-   "w": 8,
+   "w": 15,
    "list": [
-    "全自鉚",
-    "半自鉚"
+    "邊料",
+    "中料",
+    "邊中料"
    ]
-  },
-  {
-   "op": "field",
-   "k": "plant",
-   "l": "廠別",
-   "type": "radio",
-   "w": 8,
-   "list": [
-    "一廠",
-    "二廠"
-   ]
-  },
-  {
-   "op": "field",
-   "k": "custpn",
-   "l": "客戶料號",
-   "type": "text",
-   "w": 11
-  },
-  {
-   "op": "field",
-   "k": "slots",
-   "l": "定子槽數",
-   "type": "text",
-   "w": 11
-  },
-  {
-   "op": "field",
-   "k": "pnfin",
-   "l": "成品料號",
-   "type": "text",
-   "w": 11
-  },
-  {
-   "op": "field",
-   "k": "packway",
-   "l": "包裝方式",
-   "type": "text",
-   "w": 26
-  },
-  {
-   "op": "field",
-   "k": "worem",
-   "l": "製令備註",
-   "type": "text",
-   "w": 26
   },
   {
    "op": "field",
@@ -187,14 +188,14 @@ const FORM = {
    "k": "o_round",
    "l": "圓孔",
    "type": "text",
-   "w": 8
+   "w": 10
   },
   {
    "op": "field",
    "k": "o_vent",
    "l": "風孔",
    "type": "radio",
-   "w": 8,
+   "w": 10,
    "list": [
     "有",
     "無"
@@ -205,7 +206,7 @@ const FORM = {
    "k": "o_foot",
    "l": "足片別",
    "type": "radio",
-   "w": 8,
+   "w": 10,
    "list": [
     "有",
     "無"
@@ -216,7 +217,7 @@ const FORM = {
    "k": "o_logo",
    "l": "LOGO",
    "type": "radio",
-   "w": 8,
+   "w": 10,
    "list": [
     "有",
     "無"
@@ -226,26 +227,11 @@ const FORM = {
    "op": "field",
    "k": "o_mark",
    "l": "標記",
-   "type": "text",
-   "w": 4
-  },
-  {
-   "op": "field",
-   "k": "shipto",
-   "l": "送貨地點",
-   "type": "text",
-   "w": 4
-  },
-  {
-   "op": "field",
-   "k": "o_pos2",
-   "l": "料位",
-   "type": "radio",
-   "w": 4,
+   "type": "checks",
+   "w": 10,
    "list": [
-    "邊料",
-    "中料",
-    "邊中料"
+    "APP字模",
+    "ㄇ型記號孔"
    ]
   },
   {
@@ -253,7 +239,7 @@ const FORM = {
    "k": "o_weld",
    "l": "焊溝",
    "type": "radio",
-   "w": 4,
+   "w": 12,
    "list": [
     "有",
     "無"
@@ -264,91 +250,26 @@ const FORM = {
    "k": "o_weld_n",
    "l": "焊溝數量",
    "type": "text",
-   "w": 4
+   "w": 12
+  },
+  {
+   "op": "field",
+   "k": "shipto",
+   "l": "送貨地點",
+   "type": "text",
+   "w": 12
+  },
+  {
+   "op": "field",
+   "k": "packway",
+   "l": "包裝方式",
+   "type": "text",
+   "w": 12
   },
   {
    "op": "sec",
-   "title": "二、模具沖壓站",
-   "note": "斜度設定值＝機台怎麼調才沖得出上面那個斜度規格"
-  },
-  {
-   "op": "field",
-   "k": "proddate",
-   "l": "生產日期",
-   "type": "text",
-   "w": 7
-  },
-  {
-   "op": "field",
-   "k": "press",
-   "l": "沖床台號",
-   "type": "text",
-   "w": 7
-  },
-  {
-   "op": "field",
-   "k": "skewset",
-   "l": "斜度設定值",
-   "type": "text",
-   "w": 7
-  },
-  {
-   "op": "field",
-   "k": "mdchk",
-   "l": "模具檢點結果",
-   "type": "radio",
-   "w": 7,
-   "list": [
-    "正常",
-    "修磨",
-    "維修"
-   ]
-  },
-  {
-   "op": "field",
-   "k": "recv",
-   "l": "工程數(片)",
-   "type": "text",
-   "w": 5
-  },
-  {
-   "op": "field",
-   "k": "done",
-   "l": "完成數(只)",
-   "type": "text",
-   "w": 5
-  },
-  {
-   "op": "field",
-   "k": "ng",
-   "l": "不良數",
-   "type": "text",
-   "w": 5
-  },
-  {
-   "op": "field",
-   "k": "ngact",
-   "l": "不良處置",
-   "type": "checks",
-   "w": 5,
-   "list": [
-    "報廢",
-    "重工",
-    "挑選",
-    "退上站"
-   ]
-  },
-  {
-   "op": "field",
-   "k": "sign1",
-   "l": "簽名",
-   "type": "text",
-   "w": 5
-  },
-  {
-   "op": "sec",
-   "title": "三、靜子 ST 加工站",
-   "note": "不經過的站請勾「不適用」，勿留白"
+   "title": "肆、靜子 ST 加工站",
+   "note": "走過的站打勾，並註明爐號／溫度／時間等關鍵參數"
   },
   {
    "op": "stations",
@@ -406,87 +327,52 @@ const FORM = {
   },
   {
    "op": "sec",
-   "title": "四、包裝",
-   "note": "箱型與箱數為選箱規則的來源，務必填寫"
+   "title": "伍、包裝",
+   "note": "箱型與每箱數量是選箱規則的來源，務必填寫"
   },
   {
    "op": "field",
    "k": "boxtype",
    "l": "箱　型",
    "type": "text",
-   "w": 7
+   "w": 15
   },
   {
    "op": "field",
    "k": "perbox",
    "l": "每箱數量",
    "type": "text",
-   "w": 7
-  },
-  {
-   "op": "field",
-   "k": "boxes",
-   "l": "箱　數",
-   "type": "text",
-   "w": 7
+   "w": 15
   },
   {
    "op": "field",
    "k": "labeltxt",
    "l": "標籤寫法",
    "type": "text",
-   "w": 7
+   "w": 15
   },
   {
    "op": "sec",
-   "title": "五、入成品倉庫",
-   "note": "終點"
+   "title": "陸、備註",
+   "note": ""
   },
   {
    "op": "field",
-   "k": "indate",
-   "l": "入庫日期",
+   "k": "worem",
+   "l": "製令備註",
    "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "inqty",
-   "l": "入庫數量",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "inloc",
-   "l": "位置",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "insign",
-   "l": "入庫簽名",
-   "type": "text",
-   "w": 8
+   "w": 44
   },
   {
    "op": "rule",
-   "text": "填寫規定：① 不良數為 0 也要寫 0。② 不經過的站一律勾「不適用」。③ 品管欄不可由操作員代簽。④ 塗改劃單線並簽名，勿塗黑或用修正液。"
+   "text": "說明：這張單記的是「這個料號怎麼做」，不是「這一批做了多少」。走過的站請打勾並註明爐號／溫度／時間等關鍵參數；做法有變更時直接更新這一筆。"
   }
  ],
  "RO": [
   {
    "op": "sec",
-   "title": "一、製令資訊",
-   "note": "沖壓站填寫，兩張單同時複寫"
-  },
-  {
-   "op": "field",
-   "k": "wo",
-   "l": "製令號",
-   "type": "text",
-   "w": 8
+   "title": "壹、產品識別",
+   "note": "這一筆是哪一個成品——客戶＋模具規格＋槽數就是它的身分"
   },
   {
    "op": "field",
@@ -508,6 +394,54 @@ const FORM = {
    "l": "模具規格",
    "type": "text",
    "w": 8
+  },
+  {
+   "op": "field",
+   "k": "slots",
+   "l": "轉子槽數",
+   "type": "text",
+   "w": 8
+  },
+  {
+   "op": "field",
+   "k": "custpn",
+   "l": "客戶料號",
+   "type": "text",
+   "w": 8
+  },
+  {
+   "op": "field",
+   "k": "pnfin",
+   "l": "成品料號",
+   "type": "text",
+   "w": 8
+  },
+  {
+   "op": "field",
+   "k": "form",
+   "l": "積層形式",
+   "type": "radio",
+   "w": 8,
+   "list": [
+    "全自鉚",
+    "半自鉚"
+   ]
+  },
+  {
+   "op": "field",
+   "k": "plant",
+   "l": "廠別",
+   "type": "radio",
+   "w": 8,
+   "list": [
+    "一廠",
+    "二廠"
+   ]
+  },
+  {
+   "op": "sec",
+   "title": "貳、材料與規格",
+   "note": ""
   },
   {
    "op": "field",
@@ -540,75 +474,89 @@ const FORM = {
    "listName": "SKEW"
   },
   {
-   "op": "field",
-   "k": "qty",
-   "l": "訂單數量",
-   "type": "text",
-   "w": 8
+   "op": "sec",
+   "title": "參、沖壓做法",
+   "note": "斜度設定值＝機台怎麼調才沖得出上面那個斜度規格"
   },
   {
    "op": "field",
-   "k": "due",
-   "l": "交期",
+   "k": "press",
+   "l": "沖床台號",
    "type": "text",
-   "w": 8
+   "w": 15
   },
   {
    "op": "field",
-   "k": "form",
-   "l": "積層形式",
+   "k": "skewset",
+   "l": "斜度設定值",
+   "type": "text",
+   "w": 15
+  },
+  {
+   "op": "field",
+   "k": "o_pos2",
+   "l": "料位",
    "type": "radio",
-   "w": 8,
+   "w": 15,
    "list": [
-    "全自鉚",
-    "半自鉚"
+    "邊料",
+    "中料",
+    "邊中料"
    ]
   },
   {
    "op": "field",
-   "k": "plant",
-   "l": "廠別",
-   "type": "radio",
-   "w": 8,
-   "list": [
-    "一廠",
-    "二廠"
-   ]
+   "k": "o_round",
+   "l": "圓孔",
+   "type": "text",
+   "w": 7
   },
   {
    "op": "field",
-   "k": "custpn",
-   "l": "客戶料號",
+   "k": "o_bighole",
+   "l": "大孔／小孔 φ",
    "type": "text",
-   "w": 3
-  },
-  {
-   "op": "field",
-   "k": "slots",
-   "l": "轉子槽數",
-   "type": "text",
-   "w": 3
-  },
-  {
-   "op": "field",
-   "k": "pnfin",
-   "l": "成品料號",
-   "type": "text",
-   "w": 3
+   "w": 7
   },
   {
    "op": "field",
    "k": "o_vent",
    "l": "風孔",
-   "type": "text",
-   "w": 8
+   "type": "radio",
+   "w": 7,
+   "list": [
+    "有",
+    "無"
+   ]
+  },
+  {
+   "op": "field",
+   "k": "o_logo",
+   "l": "LOGO",
+   "type": "radio",
+   "w": 7,
+   "list": [
+    "有",
+    "無"
+   ]
+  },
+  {
+   "op": "field",
+   "k": "o_foot",
+   "l": "足片別",
+   "type": "radio",
+   "w": 7,
+   "list": [
+    "有",
+    "無"
+   ]
   },
   {
    "op": "field",
    "k": "o_markhole",
    "l": "記號孔",
    "type": "radio",
-   "w": 8,
+   "w": 12,
    "list": [
     "ㄇ型記號孔",
     "U型記號孔"
@@ -619,7 +567,7 @@ const FORM = {
    "k": "o_idhole",
    "l": "辨識孔",
    "type": "radio",
-   "w": 8,
+   "w": 12,
    "list": [
     "有",
     "無"
@@ -627,31 +575,10 @@ const FORM = {
   },
   {
    "op": "field",
-   "k": "o_bighole",
-   "l": "大孔／小孔 φ",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "o_round",
-   "l": "圓孔",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "o_logo",
-   "l": "LOGO",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "o_foot",
-   "l": "足片別",
+   "k": "o_laser",
+   "l": "雷雕",
    "type": "radio",
-   "w": 8,
+   "w": 12,
    "list": [
     "有",
     "無"
@@ -662,20 +589,9 @@ const FORM = {
    "k": "o_mark",
    "l": "標記",
    "type": "checks",
-   "w": 9,
+   "w": 12,
    "list": [
     "APP字模"
-   ]
-  },
-  {
-   "op": "field",
-   "k": "o_laser",
-   "l": "雷雕",
-   "type": "radio",
-   "w": 9,
-   "list": [
-    "有",
-    "無"
    ]
   },
   {
@@ -683,117 +599,19 @@ const FORM = {
    "k": "shipto",
    "l": "送貨地點",
    "type": "text",
-   "w": 9
-  },
-  {
-   "op": "field",
-   "k": "o_pos2",
-   "l": "料位",
-   "type": "radio",
-   "w": 9,
-   "list": [
-    "邊料",
-    "中料",
-    "邊中料"
-   ]
+   "w": 19
   },
   {
    "op": "field",
    "k": "packway",
    "l": "包裝方式",
    "type": "text",
-   "w": 26
-  },
-  {
-   "op": "field",
-   "k": "worem",
-   "l": "製令備註",
-   "type": "text",
-   "w": 26
+   "w": 19
   },
   {
    "op": "sec",
-   "title": "二、模具沖壓站",
-   "note": "斜度設定值＝機台怎麼調才沖得出上面那個斜度規格"
-  },
-  {
-   "op": "field",
-   "k": "proddate",
-   "l": "生產日期",
-   "type": "text",
-   "w": 7
-  },
-  {
-   "op": "field",
-   "k": "press",
-   "l": "沖床台號",
-   "type": "text",
-   "w": 7
-  },
-  {
-   "op": "field",
-   "k": "skewset",
-   "l": "斜度設定值",
-   "type": "text",
-   "w": 7
-  },
-  {
-   "op": "field",
-   "k": "mdchk",
-   "l": "模具檢點結果",
-   "type": "radio",
-   "w": 7,
-   "list": [
-    "正常",
-    "修磨",
-    "維修"
-   ]
-  },
-  {
-   "op": "field",
-   "k": "recv",
-   "l": "工程數(片)",
-   "type": "text",
-   "w": 5
-  },
-  {
-   "op": "field",
-   "k": "done",
-   "l": "完成數(只)",
-   "type": "text",
-   "w": 5
-  },
-  {
-   "op": "field",
-   "k": "ng",
-   "l": "不良數",
-   "type": "text",
-   "w": 5
-  },
-  {
-   "op": "field",
-   "k": "ngact",
-   "l": "不良處置",
-   "type": "checks",
-   "w": 5,
-   "list": [
-    "報廢",
-    "重工",
-    "挑選",
-    "退上站"
-   ]
-  },
-  {
-   "op": "field",
-   "k": "sign1",
-   "l": "簽名",
-   "type": "text",
-   "w": 5
-  },
-  {
-   "op": "sec",
-   "title": "三、轉子 RO 加工站",
-   "note": ""
+   "title": "肆、轉子 RO 加工站",
+   "note": "走過的站打勾，並註明爐號／溫度／時間等關鍵參數"
   },
   {
    "op": "stations",
@@ -859,7 +677,7 @@ const FORM = {
   },
   {
    "op": "sec",
-   "title": "四、後製程選配",
+   "title": "伍、後製程選配",
    "note": "不是獨立工站，但會決定是不是不同的成品"
   },
   {
@@ -904,15 +722,15 @@ const FORM = {
   },
   {
    "op": "sec",
-   "title": "五、委外加工",
-   "note": "本單留廠內，不隨貨出廠；貨另附委外單"
+   "title": "陸、委外加工",
+   "note": "本單留廠內，不隨貨出廠"
   },
   {
    "op": "field",
    "k": "out1",
    "l": "加工類別",
    "type": "checks",
-   "w": 8,
+   "w": 28,
    "list": [
     "焊銅",
     "鑄鋁",
@@ -924,87 +742,49 @@ const FORM = {
    "k": "outv",
    "l": "委外廠商",
    "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "outd",
-   "l": "送出日期",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "outb",
-   "l": "回廠日期",
-   "type": "text",
-   "w": 8
+   "w": 28
   },
   {
    "op": "sec",
-   "title": "六、包裝",
-   "note": "箱型與箱數為選箱規則的來源，務必填寫"
+   "title": "柒、包裝",
+   "note": "箱型與每箱數量是選箱規則的來源，務必填寫"
   },
   {
    "op": "field",
    "k": "boxtype",
    "l": "箱　型",
    "type": "text",
-   "w": 7
+   "w": 15
   },
   {
    "op": "field",
    "k": "perbox",
    "l": "每箱數量",
    "type": "text",
-   "w": 7
-  },
-  {
-   "op": "field",
-   "k": "boxes",
-   "l": "箱　數",
-   "type": "text",
-   "w": 7
+   "w": 15
   },
   {
    "op": "field",
    "k": "labeltxt",
    "l": "標籤寫法",
    "type": "text",
-   "w": 7
+   "w": 15
   },
   {
    "op": "sec",
-   "title": "七、入成品倉庫",
-   "note": "終點"
+   "title": "捌、備註",
+   "note": ""
   },
   {
    "op": "field",
-   "k": "indate",
-   "l": "入庫日期",
+   "k": "worem",
+   "l": "製令備註",
    "type": "text",
-   "w": 8
+   "w": 44
   },
   {
-   "op": "field",
-   "k": "inqty",
-   "l": "入庫數量",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "inloc",
-   "l": "位置",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "insign",
-   "l": "入庫簽名",
-   "type": "text",
-   "w": 8
+   "op": "rule",
+   "text": "說明：這張單記的是「這個料號怎麼做」，不是「這一批做了多少」。走過的站請打勾並註明爐號／溫度／時間等關鍵參數；做法有變更時直接更新這一筆。"
   }
  ]
 };
