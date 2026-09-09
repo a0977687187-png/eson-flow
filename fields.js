@@ -174,20 +174,12 @@ const FORM = {
   },
   {
    "op": "field",
-   "k": "o_bighole",
-   "l": "大孔／小孔 φ",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
    "k": "o_foot",
    "l": "足片別",
    "type": "radio",
    "w": 8,
    "list": [
-    "S",
-    "R",
+    "有",
     "無"
    ]
   },
@@ -206,12 +198,8 @@ const FORM = {
    "op": "field",
    "k": "o_mark",
    "l": "標記",
-   "type": "checks",
-   "w": 8,
-   "list": [
-    "APP字模",
-    "ㄇ型記號孔"
-   ]
+   "type": "text",
+   "w": 8
   },
   {
    "op": "field",
@@ -269,8 +257,8 @@ const FORM = {
   },
   {
    "op": "field",
-   "k": "skewset",
-   "l": "斜度設定值",
+   "k": "packway",
+   "l": "包裝方式",
    "type": "text",
    "w": 7
   },
@@ -289,7 +277,7 @@ const FORM = {
   {
    "op": "field",
    "k": "recv",
-   "l": "接收數(片)",
+   "l": "工程數(片)",
    "type": "text",
    "w": 5
   },
@@ -334,23 +322,35 @@ const FORM = {
   },
   {
    "op": "stations",
-   "passcol": "不適用",
+   "passcol": "經過",
    "list": [
     {
      "name": "靜子焊接",
-     "pass_opts": []
+     "pass_opts": [
+      "有",
+      "無"
+     ]
     },
     {
      "name": "倒　角",
-     "pass_opts": []
+     "pass_opts": [
+      "有",
+      "無"
+     ]
     },
     {
      "name": "磨稜角／車削／去毛邊",
-     "pass_opts": []
+     "pass_opts": [
+      "有",
+      "無"
+     ]
     },
     {
      "name": "燒　炖",
-     "pass_opts": []
+     "pass_opts": [
+      "有",
+      "無"
+     ]
     }
    ]
   },
@@ -551,28 +551,32 @@ const FORM = {
    "k": "custpn",
    "l": "客戶料號",
    "type": "text",
-   "w": 11
+   "w": 3
   },
   {
    "op": "field",
    "k": "slots",
    "l": "轉子槽數",
    "type": "text",
-   "w": 11
+   "w": 3
   },
   {
    "op": "field",
    "k": "pnfin",
    "l": "成品料號",
    "type": "text",
-   "w": 11
+   "w": 3
   },
   {
    "op": "field",
    "k": "o_markhole",
    "l": "記號孔",
-   "type": "text",
-   "w": 8
+   "type": "radio",
+   "w": 8,
+   "list": [
+    "ㄇ型記號孔",
+    "U型記號孔"
+   ]
   },
   {
    "op": "field",
@@ -587,27 +591,8 @@ const FORM = {
   },
   {
    "op": "field",
-   "k": "o_foot",
-   "l": "足片別",
-   "type": "radio",
-   "w": 8,
-   "list": [
-    "S",
-    "R",
-    "無"
-   ]
-  },
-  {
-   "op": "field",
    "k": "o_round",
    "l": "圓孔",
-   "type": "text",
-   "w": 8
-  },
-  {
-   "op": "field",
-   "k": "o_bighole",
-   "l": "大孔／小孔 φ",
    "type": "text",
    "w": 8
   },
@@ -620,13 +605,23 @@ const FORM = {
   },
   {
    "op": "field",
+   "k": "o_foot",
+   "l": "足片別",
+   "type": "radio",
+   "w": 8,
+   "list": [
+    "有",
+    "無"
+   ]
+  },
+  {
+   "op": "field",
    "k": "o_mark",
    "l": "標記",
    "type": "checks",
    "w": 9,
    "list": [
-    "APP字模",
-    "ㄇ型記號孔"
+    "APP字模"
    ]
   },
   {
@@ -711,7 +706,7 @@ const FORM = {
   {
    "op": "field",
    "k": "recv",
-   "l": "接收數(片)",
+   "l": "工程數(片)",
    "type": "text",
    "w": 5
   },
@@ -965,6 +960,48 @@ const FORM = {
    "l": "入庫簽名",
    "type": "text",
    "w": 8
+  },
+  {
+   "op": "field",
+   "k": "o_bighole_size_u",
+   "l": "大孔／小孔 φ 上 尺寸",
+   "type": "text",
+   "w": 2
+  },
+  {
+   "op": "field",
+   "k": "o_bighole_size_m",
+   "l": "大孔／小孔 φ 中 尺寸",
+   "type": "text",
+   "w": 2
+  },
+  {
+   "op": "field",
+   "k": "o_bighole_size_d",
+   "l": "大孔／小孔 φ 下 尺寸",
+   "type": "text",
+   "w": 2
+  },
+  {
+   "op": "field",
+   "k": "o_bighole_pcs_u",
+   "l": "大孔／小孔 φ 上 片",
+   "type": "text",
+   "w": 2
+  },
+  {
+   "op": "field",
+   "k": "o_bighole_pcs_m",
+   "l": "大孔／小孔 φ 中 片",
+   "type": "text",
+   "w": 2
+  },
+  {
+   "op": "field",
+   "k": "o_bighole_pcs_d",
+   "l": "大孔／小孔 φ 下 片",
+   "type": "text",
+   "w": 2
   }
  ]
 };
