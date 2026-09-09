@@ -84,7 +84,7 @@ export async function remove(no) {
 
 // 主檔＝流動單累積出來的，不是預先建的
 export async function meta() {
-  const { data, error } = await db.from('travelers').select('cust, mold, spec');
+  const { data, error } = await db.from('travelers').select('kind, cust, mold, spec');
   if (error) throw error;
   const tally = key => {
     const m = new Map();
@@ -94,47 +94,112 @@ export async function meta() {
     }
     return [...m].map(([v, n]) => ({ v, n })).sort((a, b) => b.n - a.n || a.v.localeCompare(b.v));
   };
-  return { customers: tally('cust'), molds: tally('mold'), specs: tally('spec'), total: data.length };
+  const byKind = { ST: 0, RO: 0 };
+  for (const r of data) if (byKind[r.kind] != null) byKind[r.kind]++;
+  return { customers: tally('cust'), molds: tally('mold'), specs: tally('spec'),
+    byKind, total: data.length };
 }
+
+// 給畫面顯示「現在是誰登入的」。共用帳號時就是那組帳號。
+let _email = '';
+export const currentEmail = () => _email;
 
 // ── 登入把關 ────────────────────────────────────────────────
 // 沒登入的話蓋一層登入畫面。資料本身由 RLS 擋，這層只是不要讓人看到空畫面發呆。
 export async function requireLogin() {
   if (!configured) {
-    gate('尚未設定 Supabase', '請先照 supabase/設定步驟.md 建好專案，把 Project URL 與 anon key 填進 config.js');
+    gate('<h2>尚未設定 Supabase</h2><p class="en">請先照 supabase/設定步驟.md 建好專案，'
+       + '把 Project URL 與 anon key 填進 config.js</p>');
     return null;
   }
   const { data: { session } } = await db.auth.getSession();
-  if (session) return session;
+  if (session) { _email = session.user?.email || ''; return session; }
   return new Promise(resolve => loginForm(resolve));
 }
 
-function gate(title, msg, formHtml = '') {
+const ICON = {
+  boxes: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-4.5-2.7a2 2 0 0 0-2.06 0z"/><path d="m7 16.5-4.74-2.85"/><path d="m7 16.5 5-3"/><path d="M7 16.5v5.17"/><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L18.5 10.8a2 2 0 0 0-2.06 0z"/><path d="m17 16.5-5-3"/><path d="m17 16.5 4.74-2.85"/><path d="M17 16.5v5.17"/><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0z"/><path d="M12 8 7.26 5.15"/><path d="m12 8 4.74-2.85"/><path d="M12 13.5V8"/></svg>',
+  info: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+  book: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>',
+  user: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  lock: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  login: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>',
+  right: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+};
+
+function gate(inner) {
   const el = document.createElement('div');
   el.id = 'gate';
-  el.innerHTML = `<div class="gatebox">
-      <div class="gatelogo">製程流動單</div>
-      <h2>${title}</h2>
-      <p>${msg}</p>${formHtml}</div>`;
+  el.innerHTML = `<div class="box">
+    <div class="strip">
+      <div class="l"><span class="live"><span class="dot-live"></span>已連線</span>
+        <span style="color:#334155">|</span>
+        <span class="m">eson-flow · FM-PT-01 B3</span></div>
+      <div class="m">億新精機</div>
+    </div>
+    <div class="cols">
+      <div class="left">
+        <div class="gbrand">
+          <div class="logo">${ICON.boxes}</div>
+          <div>
+            <span class="kicker">MES ROUTING</span>
+            <h1>製程流動單系統</h1>
+          </div>
+        </div>
+        <p class="en">ESON FLOW · PRODUCTION ROUTING RECORD</p>
+        <div class="two">
+          <div class="c">
+            <div class="top"><span class="code">ST</span><span class="where">靜子</span></div>
+            <h3>靜子 ST 流動單</h3>
+            <p>沖壓 → 靜子焊接 → 倒角 → 磨稜角／去毛邊 → 燒炖 → 包裝 → 入庫。</p>
+          </div>
+          <div class="c ro">
+            <div class="top"><span class="code">RO</span><span class="where">轉子</span></div>
+            <h3>轉子 RO 流動單</h3>
+            <p>沖壓 → 假軸／鑄鋁 → 入軸心 → 清鋁屑 → 攪孔上漆 → 燒炖 → 包裝 → 入庫。</p>
+          </div>
+        </div>
+        <div class="info">
+          <div class="t">${ICON.info}<span>主檔會自己長出來</span></div>
+          <p>客戶、模具、規格都不預先建檔，是現場每張流動單填進來累積的。等累積到三、五十張，再回頭看實際出現過哪些組合，那時候才有依據決定「同規格」該怎麼定義。</p>
+        </div>
+        <div class="lfoot">
+          <a class="manual" href="help.html">
+            <span>${ICON.book} 怎麼把紙本輸入系統？</span>${ICON.right}</a>
+        </div>
+      </div>
+      <div class="right">${inner}</div>
+    </div>
+  </div>`;
   document.body.append(el);
   return el;
 }
 
 function loginForm(resolve) {
-  const el = gate('請先登入', '用公司給的共用帳號密碼', `
+  const el = gate(`
+    <div class="ghead">
+      <div><h2>登入</h2><p>用公司給的共用帳號密碼</p></div>
+    </div>
     <form id="lf">
-      <label>帳號<input type="email" id="le" autocomplete="username" required></label>
-      <label>密碼<input type="password" id="lp" autocomplete="current-password" required></label>
-      <button class="act solid" type="submit">登入</button>
+      <div class="fld"><label for="le">帳號</label>
+        <div class="wrap2">${ICON.user}
+          <input type="email" id="le" autocomplete="username" required placeholder="eson@flow.local"></div></div>
+      <div class="fld"><label for="lp">密碼</label>
+        <div class="wrap2">${ICON.lock}
+          <input type="password" id="lp" autocomplete="current-password" required></div></div>
       <div class="err" id="lerr"></div>
-    </form>`);
+      <button class="btn dark lg" type="submit" style="justify-content:center">
+        ${ICON.login}<span>登入系統</span></button>
+    </form>
+    <div class="gfoot"><p>ESON INDUSTRIAL MFG. CO., LTD.</p></div>`);
+
   const emailBox = el.querySelector('#le');
   emailBox.value = localStorage.getItem('eson-last-email') || '';
   (emailBox.value ? el.querySelector('#lp') : emailBox).focus();
 
   el.querySelector('#lf').addEventListener('submit', async e => {
     e.preventDefault();
-    const btn = el.querySelector('button');
+    const btn = el.querySelector('button[type=submit]');
     const err = el.querySelector('#lerr');
     btn.disabled = true; err.textContent = '';
     const email = emailBox.value.trim();
@@ -147,6 +212,7 @@ function loginForm(resolve) {
       return;
     }
     localStorage.setItem('eson-last-email', email);
+    _email = email;
     el.remove();
     resolve(data.session);
   });

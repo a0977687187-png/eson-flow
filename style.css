@@ -201,22 +201,5 @@ table.rows tbody tr:hover td{background:var(--accent-soft)}
 .phead b{font-size:13pt}
 .phead span{font-size:8pt}
 
-/* ── 登入遮罩 ─────────────────────────────────── */
-#gate{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;
-  background:var(--ground);padding:20px}
-#gate .gatebox{width:100%;max-width:360px;background:var(--surface);
-  border:1px solid var(--rule);border-radius:var(--r);box-shadow:var(--shadow-lg);
-  padding:30px 26px;text-align:center}
-#gate .gatelogo{font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--accent);
-  margin-bottom:16px}
-#gate h2{margin:0 0 6px;font-size:20px;letter-spacing:-.02em}
-#gate p{margin:0 0 20px;font-size:13.5px;color:var(--ink-3);line-height:1.6}
-#gate form{display:flex;flex-direction:column;gap:12px;text-align:left}
-#gate label{font-size:12px;font-weight:600;color:var(--ink-3);display:flex;
-  flex-direction:column;gap:5px}
-#gate input{font:inherit;font-size:15px;min-height:42px;padding:8px 11px;
-  border:1px solid var(--rule-2);border-radius:var(--r-sm);
-  background:var(--surface);color:var(--ink)}
-#gate input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--ring)}
-#gate button{justify-content:center;margin-top:4px}
-#gate .err{font-size:13px;color:var(--bad);min-height:19px;text-align:center}
+/* 登入遮罩的樣式已移到 ui.css（新版工控介面），這裡不再定義，
+   否則兩邊的 #gate 規則會互相蓋。 */

@@ -2,7 +2,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>製程流動單 填寫</title>
-<link rel="stylesheet" href="style.css?v=1788917470">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- ui.css 提供登入遮罩與工控外殼；style.css 後載，表單本體與 A4 列印樣式以它為準 -->
+<link rel="stylesheet" href="ui.css?v=1788918359">
+<link rel="stylesheet" href="style.css?v=1788918359">
 
 <div class="wrap">
 
@@ -38,11 +43,11 @@
 
 </div>
 
-<script src="config.js?v=1788917470"></script>
-<script src="banner.js?v=1788917470"></script>
-<script src="fields.js?v=1788917470"></script>
+<script src="config.js?v=1788918359"></script>
+<script src="banner.js?v=1788918359"></script>
+<script src="fields.js?v=1788918359"></script>
 <script type="module">
-import { requireLogin, get, create, update } from './db.js?v=1788917470';
+import { requireLogin, get, create, update } from './db.js?v=1788918359';
 
 const qs = new URLSearchParams(location.search);
 let NO = qs.get('no') || '';
