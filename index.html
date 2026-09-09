@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ui.css?v=1788925100">
+<link rel="stylesheet" href="ui.css?v=1788925438">
 
 <div class="shell">
 
@@ -99,10 +99,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1788925100"></script>
-<script src="fields.js?v=1788925100"></script>
+<script src="config.js?v=1788925438"></script>
+<script src="fields.js?v=1788925438"></script>
 <script type="module">
-import { requireLogin, list, meta, logout, currentEmail } from './db.js?v=1788925100';
+import { requireLogin, list, meta, logout, currentEmail } from './db.js?v=1788925438';
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
@@ -123,8 +123,18 @@ function howMade(r) {
   const push = (k, v) => { if (v) bits.push([k, v]); };
   const stations = stationsOf(r.kind);
   const walked = r.stepsUsed.map(i => (stations[i] ? stations[i].name : '?').replace(/\s/g, ''));
-  const opts = optFields(r.kind).map(([k, l]) => d[k] ? l + ' ' + String(d[k]).replace(/\|/g, '、') : null).filter(Boolean);
-  const post = [d.p_opt, d.p_ring === '有' ? '端環' : '', d.p_fan === '有' ? '扇葉/平衡柱' : '', d.p_other]
+  // 沖壓選配只列「有的」——空白與「無」都不顯示。
+  // 一張單十幾個選配大多是無，全列出來反而看不到真正的差異在哪。
+  // 值就是「有」的（風孔、LOGO 這種），顯示欄位名就夠，不用寫成「風孔 有」。
+  const opts = optFields(r.kind).map(([k, l]) => {
+    const v = String(d[k] || '').replace(/\|/g, '、').trim();
+    if (!v || v === '無') return null;
+    return v === '有' ? l : l + ' ' + v;
+  }).filter(Boolean);
+  // 後製程同理：只列有做的
+  const notNone = v => { const s = String(v || '').trim(); return s && s !== '無' ? s : ''; };
+  const post = [notNone(d.p_opt), d.p_ring === '有' ? '端環' : '',
+                d.p_fan === '有' ? '扇葉/平衡柱' : '', notNone(d.p_other)]
     .filter(Boolean).join('、').replace(/\|/g, '、');
 
   push('模具', [d.mold, d.spec, d.slots && d.slots + '槽'].filter(Boolean).join('　'));
