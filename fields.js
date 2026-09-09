@@ -6,7 +6,10 @@
 const MAT = ['C60', 'C40', '35CS250H', 'C23', 'H60', 'H23', '50CS470', 'C60ST線槽', 'C18', 'C628', '35CS300', '50CS1300'];
 const SKEW = ['1.5T', '2T', '1.4T', '1.3T', '1.2T', '1.6T', '1.8T', '2.5T', '3T', '1.2～1.3T', 'S', 'T', '7°', '12°'];
 const BOX = ['煙燻小紙箱', '煙燻大紙箱', '大蝴蝶籠', '蝴蝶籠', '棧板', '木箱', '6號小紙箱', '18號小紙箱', '2號紙箱'];
-const LISTS = { MAT, SKEW, BOX };
+// 大孔：歷史 5,482 筆只出現 7 種組合，依出現次數排序。片數一律＝尺寸÷0.5，不用另外填。
+const BIGHOLE = ['無', '上下各3㎜（6片）', '上下各5㎜（10片）', '上下各10㎜（20片）',
+  '上下各4㎜（8片）', '上下各1㎜（2片）', '上下各2㎜（4片）', '上下各6㎜（12片）'];
+const LISTS = { MAT, SKEW, BOX, BIGHOLE };
 
 const FORM = {
  "ST": [
@@ -591,6 +594,14 @@ const FORM = {
   },
   {
    "op": "field",
+   "k": "o_bighole",
+   "l": "大孔／小孔 φ",
+   "type": "select",
+   "w": 8,
+   "listName": "BIGHOLE"
+  },
+  {
+   "op": "field",
    "k": "o_round",
    "l": "圓孔",
    "type": "text",
@@ -960,48 +971,6 @@ const FORM = {
    "l": "入庫簽名",
    "type": "text",
    "w": 8
-  },
-  {
-   "op": "field",
-   "k": "o_bighole_size_u",
-   "l": "大孔／小孔 φ 上 尺寸",
-   "type": "text",
-   "w": 2
-  },
-  {
-   "op": "field",
-   "k": "o_bighole_size_m",
-   "l": "大孔／小孔 φ 中 尺寸",
-   "type": "text",
-   "w": 2
-  },
-  {
-   "op": "field",
-   "k": "o_bighole_size_d",
-   "l": "大孔／小孔 φ 下 尺寸",
-   "type": "text",
-   "w": 2
-  },
-  {
-   "op": "field",
-   "k": "o_bighole_pcs_u",
-   "l": "大孔／小孔 φ 上 片",
-   "type": "text",
-   "w": 2
-  },
-  {
-   "op": "field",
-   "k": "o_bighole_pcs_m",
-   "l": "大孔／小孔 φ 中 片",
-   "type": "text",
-   "w": 2
-  },
-  {
-   "op": "field",
-   "k": "o_bighole_pcs_d",
-   "l": "大孔／小孔 φ 下 片",
-   "type": "text",
-   "w": 2
   }
  ]
 };
