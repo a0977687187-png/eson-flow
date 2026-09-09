@@ -6,8 +6,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <!-- ui.css 提供登入遮罩與工控外殼；style.css 後載，表單本體與 A4 列印樣式以它為準 -->
-<link rel="stylesheet" href="ui.css?v=1788939537">
-<link rel="stylesheet" href="style.css?v=1788939537">
+<link rel="stylesheet" href="ui.css?v=1788940833">
+<link rel="stylesheet" href="style.css?v=1788940833">
 
 <div class="wrap">
 
@@ -49,11 +49,11 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1788939537"></script>
-<script src="banner.js?v=1788939537"></script>
-<script src="fields.js?v=1788939537"></script>
+<script src="config.js?v=1788940833"></script>
+<script src="banner.js?v=1788940833"></script>
+<script src="fields.js?v=1788940833"></script>
 <script type="module">
-import { requireLogin, get, create, update } from './db.js?v=1788939537';
+import { requireLogin, get, create, update } from './db.js?v=1788940833';
 
 const qs = new URLSearchParams(location.search);
 let NO = qs.get('no') || '';
@@ -113,7 +113,7 @@ function render() {
     let bodyHtml = '';
     if (s.stations) bodyHtml += stationTable(s.stations, s.passcol);
     if (s.f.length) bodyHtml += '<div class="grid">' + s.f.map(field).join('') + '</div>';
-    return `<section><div class="sh">${esc(s.t)}${s.who ? `<span class="who">${esc(s.who)}</span>` : ''}</div>${bodyHtml}</section>`;
+    return `<section><div class="sh sh--${esc(s.tone || 'navy')}">${esc(s.t)}${s.who ? `<span class="who">${esc(s.who)}</span>` : ''}</div>${bodyHtml}</section>`;
   }).join('');
   // 轉子那張 Excel 沒有結尾的填寫規定，借靜子的顯示——規定本來就兩張單通用
   document.getElementById('rule').textContent = formRule(KIND) || formRule('ST');

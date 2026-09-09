@@ -78,11 +78,21 @@ button.act:disabled{opacity:.5;cursor:default;box-shadow:none}
 /* ── 卡片 ─────────────────────────────────────── */
 section{margin-top:16px;background:var(--surface);border:1px solid var(--rule);
   border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
-.sh{background:var(--surface-2);color:var(--ink);padding:11px 16px;
+/* 區塊標題：每一區自己的底色，跟紙本（Excel／PDF）同一組色。
+   色名由同步器帶進來，定義在 scripts/section_tone.py。
+   依「這一區在講什麼」給色，不是隨機分——現場對著紙打字時掃一眼就知道到哪一段了。 */
+.sh{background:var(--sec, #0F2744);color:#fff;padding:11px 16px;
   font-weight:700;font-size:14px;letter-spacing:-.01em;
-  border-bottom:1px solid var(--rule);box-shadow:inset 3px 0 0 var(--accent);
   display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.sh .who{font-size:12.5px;font-weight:500;color:var(--ink-2)}
+.sh .who{font-size:12.5px;font-weight:400;color:rgba(255,255,255,.82)}
+.sh--navy  {--sec:#0F2744}   /* 產品識別 */
+.sh--teal  {--sec:#1E5F5B}   /* 材料與規格 */
+.sh--blue  {--sec:#1F6F8B}   /* 沖壓做法 */
+.sh--orange{--sec:#A85A1C}   /* 加工站 */
+.sh--purple{--sec:#5B3E9B}   /* 後製程選配 */
+.sh--wine  {--sec:#8A3A5B}   /* 委外加工 */
+.sh--green {--sec:#2B6E45}   /* 包裝 */
+.sh--grey  {--sec:#4A5A70}   /* 備註 */
 
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
 .f{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:10px 13px;min-width:0}
@@ -185,9 +195,12 @@ table.rows tbody tr:hover td{background:var(--accent-soft)}
   .wrap{max-width:none;padding:0}
   .top,footer,.banner,.noprint{display:none!important}
   section{break-inside:avoid;border:1px solid #000;border-radius:0;margin-top:4pt;box-shadow:none}
-  .sh{background:#000;color:#fff;padding:3pt 6pt;font-size:10pt;box-shadow:none;
-    text-transform:none;letter-spacing:0}
-  .sh .who{color:#fff}
+  /* 列印也用同一組區塊色（PDF 版就是彩色的，兩邊要一致）。
+     print-color-adjust:exact 才不會被瀏覽器「省墨」把底色吃掉。 */
+  .sh{background:var(--sec, #000)!important;color:#fff;padding:3pt 6pt;font-size:10pt;
+    box-shadow:none;text-transform:none;letter-spacing:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sh .who{color:rgba(255,255,255,.85)}
   .grid{grid-template-columns:repeat(4,1fr)}
   .f{border-color:#000;padding:2pt 4pt}
   .f label{font-size:7.5pt;margin-bottom:1pt;color:#000}

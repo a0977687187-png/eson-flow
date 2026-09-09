@@ -16,7 +16,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "壹、產品識別",
-   "note": "這一筆是哪一個成品——客戶＋模具規格＋槽數就是它的身分"
+   "note": "這一筆是哪一個成品——客戶＋模具規格＋槽數就是它的身分",
+   "tone": "navy"
   },
   {
    "op": "field",
@@ -85,7 +86,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "貳、材料與規格",
-   "note": ""
+   "note": "",
+   "tone": "teal"
   },
   {
    "op": "field",
@@ -120,7 +122,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "參、沖壓做法",
-   "note": "斜度設定值＝機台怎麼調才沖得出上面那個斜度規格"
+   "note": "斜度設定值＝機台怎麼調才沖得出上面那個斜度規格",
+   "tone": "blue"
   },
   {
    "op": "field",
@@ -269,7 +272,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "肆、靜子 ST 加工站",
-   "note": "走過的站打勾，並註明爐號／溫度／時間等關鍵參數"
+   "note": "走過的站打勾，並註明爐號／溫度／時間等關鍵參數",
+   "tone": "orange"
   },
   {
    "op": "stations",
@@ -328,7 +332,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "伍、包裝",
-   "note": "箱型與每箱數量是選箱規則的來源，務必填寫"
+   "note": "箱型與每箱數量是選箱規則的來源，務必填寫",
+   "tone": "green"
   },
   {
    "op": "field",
@@ -354,7 +359,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "陸、備註",
-   "note": ""
+   "note": "",
+   "tone": "grey"
   },
   {
    "op": "field",
@@ -372,7 +378,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "壹、產品識別",
-   "note": "這一筆是哪一個成品——客戶＋模具規格＋槽數就是它的身分"
+   "note": "這一筆是哪一個成品——客戶＋模具規格＋槽數就是它的身分",
+   "tone": "navy"
   },
   {
    "op": "field",
@@ -441,7 +448,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "貳、材料與規格",
-   "note": ""
+   "note": "",
+   "tone": "teal"
   },
   {
    "op": "field",
@@ -476,7 +484,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "參、沖壓做法",
-   "note": "斜度設定值＝機台怎麼調才沖得出上面那個斜度規格"
+   "note": "斜度設定值＝機台怎麼調才沖得出上面那個斜度規格",
+   "tone": "blue"
   },
   {
    "op": "field",
@@ -611,7 +620,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "肆、轉子 RO 加工站",
-   "note": "走過的站打勾，並註明爐號／溫度／時間等關鍵參數"
+   "note": "走過的站打勾，並註明爐號／溫度／時間等關鍵參數",
+   "tone": "orange"
   },
   {
    "op": "stations",
@@ -678,7 +688,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "伍、後製程選配",
-   "note": "不是獨立工站，但會決定是不是不同的成品"
+   "note": "不是獨立工站，但會決定是不是不同的成品",
+   "tone": "purple"
   },
   {
    "op": "field",
@@ -723,7 +734,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "陸、委外加工",
-   "note": "本單留廠內，不隨貨出廠"
+   "note": "本單留廠內，不隨貨出廠",
+   "tone": "wine"
   },
   {
    "op": "field",
@@ -747,7 +759,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "柒、包裝",
-   "note": "箱型與每箱數量是選箱規則的來源，務必填寫"
+   "note": "箱型與每箱數量是選箱規則的來源，務必填寫",
+   "tone": "green"
   },
   {
    "op": "field",
@@ -773,7 +786,8 @@ const FORM = {
   {
    "op": "sec",
    "title": "捌、備註",
-   "note": ""
+   "note": "",
+   "tone": "grey"
   },
   {
    "op": "field",
@@ -795,7 +809,7 @@ function sections(kind) {
   let cur = null;
   for (const it of FORM[kind]) {
     if (it.op === 'sec') {
-      cur = { t: it.title, who: it.note, f: [] };
+      cur = { t: it.title, who: it.note, tone: it.tone || 'navy', f: [] };
       out.push(cur);
     } else if (it.op === 'stations') {
       if (!cur) { cur = { t: '', who: '', f: [] }; out.push(cur); }
