@@ -179,9 +179,8 @@ const FORM = {
    "op": "field",
    "k": "o_bighole",
    "l": "大孔／小孔 φ",
-   "type": "select",
-   "w": 7,
-   "listName": "BIGHOLE"
+   "type": "text",
+   "w": 7
   },
   {
    "op": "field",
@@ -228,21 +227,21 @@ const FORM = {
    "k": "o_mark",
    "l": "標記",
    "type": "text",
-   "w": 8
+   "w": 4
   },
   {
    "op": "field",
    "k": "shipto",
    "l": "送貨地點",
    "type": "text",
-   "w": 8
+   "w": 4
   },
   {
    "op": "field",
    "k": "o_pos2",
    "l": "料位",
    "type": "radio",
-   "w": 8,
+   "w": 4,
    "list": [
     "邊料",
     "中料",
@@ -254,12 +253,18 @@ const FORM = {
    "k": "o_weld",
    "l": "焊溝",
    "type": "radio",
-   "w": 8,
+   "w": 4,
    "list": [
-    "S",
-    "R",
+    "有",
     "無"
    ]
+  },
+  {
+   "op": "field",
+   "k": "o_weld_n",
+   "l": "焊溝數量",
+   "type": "text",
+   "w": 4
   },
   {
    "op": "sec",
@@ -624,9 +629,8 @@ const FORM = {
    "op": "field",
    "k": "o_bighole",
    "l": "大孔／小孔 φ",
-   "type": "select",
-   "w": 8,
-   "listName": "BIGHOLE"
+   "type": "text",
+   "w": 8
   },
   {
    "op": "field",
