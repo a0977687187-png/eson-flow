@@ -167,7 +167,9 @@ table.rows tbody tr:hover td{background:var(--accent-soft)}
 }
 
 /* ── 列印：A3 橫式 ────────────────────────────── */
-@page{size:A3 landscape;margin:8mm}
+/* 表單早就精簡到一頁 A4（PDF 版也是 A4），網頁列印卻還設在 A3——
+   現場從瀏覽器印會拿到跟紙本不同的尺寸。改成 A4 對齊。 */
+@page{size:A4 landscape;margin:8mm}
 @media print{
   body{background:#fff;color:#000;font-size:9pt}
   .wrap{max-width:none;padding:0}
