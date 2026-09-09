@@ -152,28 +152,36 @@ const FORM = {
    "k": "o_groove",
    "l": "螺溝 ∩",
    "type": "text",
-   "w": 8
+   "w": 7
   },
   {
    "op": "field",
    "k": "o_hole",
    "l": "螺孔 φ",
    "type": "text",
-   "w": 8
+   "w": 7
   },
   {
    "op": "field",
    "k": "o_pos",
    "l": "定位溝 ∩",
    "type": "text",
-   "w": 8
+   "w": 7
   },
   {
    "op": "field",
    "k": "o_gnd",
    "l": "接地孔 φ",
    "type": "text",
-   "w": 8
+   "w": 7
+  },
+  {
+   "op": "field",
+   "k": "o_bighole",
+   "l": "大孔／小孔 φ",
+   "type": "select",
+   "w": 7,
+   "listName": "BIGHOLE"
   },
   {
    "op": "field",
