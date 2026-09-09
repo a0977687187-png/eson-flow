@@ -400,9 +400,8 @@ const FORM = {
    "op": "field",
    "k": "boxtype",
    "l": "箱　型",
-   "type": "select",
-   "w": 7,
-   "listName": "BOX"
+   "type": "text",
+   "w": 7
   },
   {
    "op": "field",
@@ -938,9 +937,8 @@ const FORM = {
    "op": "field",
    "k": "boxtype",
    "l": "箱　型",
-   "type": "select",
-   "w": 7,
-   "listName": "BOX"
+   "type": "text",
+   "w": 7
   },
   {
    "op": "field",
