@@ -1,11 +1,12 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>流動單 怎麼輸入</title>
+<title>億新－製程查詢系統　操作指引</title>
+<link rel="icon" href="favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ui.css?v=1788940833">
+<link rel="stylesheet" href="ui.css?v=1789005589">
 <style>
   .sechead{display:flex;align-items:center;gap:10px;padding:13px 16px;
     background:var(--s50);border-bottom:1px solid var(--line);
@@ -47,6 +48,8 @@
   <header class="card head noprint">
     <div class="brand">
       <a class="logo" href="./" title="回清單"><i data-lucide="arrow-left"></i></a>
+      <img class="wordmark sm" src="logo.png" width="222" height="71" alt="億新精機廠">
+      <span class="vline"></span>
       <div>
         <h1>怎麼輸入流動單</h1>
         <div class="sub">紙本填好之後，照這幾步做</div>
@@ -59,7 +62,7 @@
   </header>
 
   <div class="card" style="overflow:hidden">
-    <div class="sechead"><i data-lucide="list-checks"></i>六個步驟</div>
+    <div class="sechead"><i data-lucide="list-checks"></i>七個步驟</div>
     <ol class="steps">
       <li><b>打開網址</b>
         <p>用 Chrome 開系統網址（建議加到「我的最愛」，或按「加到主畫面」變成手機圖示）。<br>
@@ -73,8 +76,12 @@
         <p>看你手上那張紙是哪一種就按哪一個。按錯了退出去重按，還沒存的不會留下東西。</p></li>
 
       <li><b>照紙上的格子，一格一格打進去</b>
-        <p>畫面上的欄位順序跟紙本一模一樣，由上往下對著打。<br>
-           紙上沒填的就留空，<b style="display:inline">不用湊</b>。打到哪算哪，不必一次打完。</p></li>
+        <p>畫面上的欄位順序跟紙本一模一樣，由上往下對著打。打到哪算哪，不必一次打完。</p></li>
+
+      <li><b>這個產品沒有的製程，勾「無」，不要留空</b>
+        <p>留空＝「還沒填」，勾無＝「確定不做」，這兩件事不一樣。<br>
+           空的選項很多的話，按頁首的 <span class="kbd">其餘皆無</span> 一次勾完，
+           再把有做的那幾格改回來。上面那條「做法完整度」就是這樣才會走到 100%。</p></li>
 
       <li><b>不用按儲存，它自己會存</b>
         <p>停手一秒多就自動送出，頁首會顯示「已儲存」和單號，像 <span class="kbd">PT2026-0007</span>。<br>
@@ -89,8 +96,13 @@
     <div class="sechead"><i data-lucide="help-circle"></i>常見狀況</div>
     <ol class="steps">
       <li><b>打到一半有事要走開</b>
-        <p>直接關掉沒關係。只要填了製令號、客戶或模具編號其中一個，系統就已經幫你存進雲端了；
+        <p>直接關掉沒關係。只要填了客戶、模具編號或模具規格其中一個，系統就已經幫你存進雲端了；
            完全還沒填那三格的話，內容只留在這台裝置上。</p></li>
+
+      <li><b>畫面上跳出紅色的「撞號，但做法不一樣」</b>
+        <p>表示這個成品料號別筆已經用過，可是兩邊寫的做法不同。<br>
+           下面那個表會列出差在哪幾欄——不是這一筆打錯，就是那一筆打錯，
+           要不然就是這兩個本來就該分成不同料號。看完再決定要改哪一邊。</p></li>
 
       <li><b>存好之後發現打錯</b>
         <p>回清單頁 → 點那一列 → 按「開啟這張單」→ 改完它一樣自己存。改幾次都可以。</p></li>

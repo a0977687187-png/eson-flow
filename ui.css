@@ -258,3 +258,57 @@ footer.note{font-size:12px;color:var(--s400);line-height:1.85;padding:0 4px}
   #gate .left{border-right:none;border-bottom:1px solid var(--line)}
 }
 @media (max-width:560px){#gate .two{grid-template-columns:1fr}}
+
+/* ── 公司標誌 ────────────────────────────────────
+   logo.png 原圖 222×71。一律只給高度、寬度 auto，
+   再加上 width/height 屬性讓瀏覽器先算好版位，怎麼縮都不會被壓扁。 */
+.wordmark{display:block;flex:none;height:38px;width:auto}
+.wordmark.sm{height:26px}
+#gate .gbrand .wordmark{height:46px}
+/* 標誌與系統名之間的細分隔線 */
+.brand .vline{flex:none;width:1px;align-self:stretch;margin:3px 2px;background:var(--line)}
+
+/* ── 撞號提醒 ────────────────────────────────────
+   同一個成品料號被寫成兩種做法＝一定有一邊錯。用紅的，不要客氣。
+   做法一樣、只是重複輸入的用黃的，那只是要不要留兩筆的問題。 */
+.warnbox{margin:0 0 12px;padding:11px 14px;border-radius:var(--r-sm);
+  border:1px solid var(--bad-line);background:var(--bad-bg);color:var(--s700);
+  font-size:12.5px;line-height:1.65}
+.warnbox b{display:block;font-size:13.5px;color:var(--bad);margin-bottom:3px}
+.warnbox.dup{border-color:var(--warn-line);background:var(--warn-bg)}
+.warnbox.dup b{color:var(--warn)}
+.difftab{width:100%;margin-top:9px;border-collapse:collapse;font-size:12px;background:#fff}
+.difftab th,.difftab td{border:1px solid var(--bad-line);padding:4px 8px;text-align:left}
+.difftab th{background:#fff;font-weight:800;color:var(--s600);font-size:11px}
+.difftab td:first-child{font-weight:700;color:var(--s700);white-space:nowrap}
+.difftab td:not(:first-child){font-family:var(--mono);color:var(--s900)}
+
+.clashbar{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;
+  border-color:var(--bad-line);background:var(--bad-bg)}
+.clashbar .ic{flex:none;width:34px;height:34px;border-radius:9px;display:flex;
+  align-items:center;justify-content:center;background:var(--bad);color:#fff}
+.clashbar .ic svg{width:19px;height:19px}
+.clashbar b{font-size:14px;color:var(--bad)}
+.clashbar p{margin:4px 0 0;font-size:12px;color:var(--s500)}
+.clashbar .pns{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.clashbar .pns code{font-family:var(--mono);font-size:12px;font-weight:700;
+  padding:2px 7px;border-radius:var(--r-xs);background:#fff;
+  border:1px solid var(--bad-line);color:var(--bad)}
+
+.clashtag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:var(--r-xs);
+  font-family:var(--font);font-size:10.5px;font-weight:800;white-space:nowrap;
+  background:var(--bad);color:#fff}
+.clashtag.dup{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line)}
+
+/* ── 做法完整度（填寫頁上方那條） ──────────────── */
+.progbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  margin:0 0 12px;padding:9px 14px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:var(--card);box-shadow:var(--sh)}
+.progbar b{font-size:13px;color:var(--s900);white-space:nowrap}
+/* 用 .track 不用 .bar——style.css 那邊 .bar 是另一個東西（橫幅），會蓋掉 */
+.progbar .track{display:block;flex:none;width:150px;height:7px;border-radius:99px;
+  background:var(--s100);overflow:hidden;padding:0}
+.progbar .track i{display:block;height:100%;border-radius:99px;background:var(--ok)}
+.progbar span{flex:1;min-width:200px;font-size:12px;color:var(--s500);line-height:1.55}
+.progbar.mid .track i{background:var(--warn)}
+.progbar.lo .track i{background:var(--bad)}

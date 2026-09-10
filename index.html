@@ -1,21 +1,23 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>製程流動單 · 查詢工作台</title>
+<title>億新－製程查詢系統</title>
+<link rel="icon" href="favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ui.css?v=1788940833">
+<link rel="stylesheet" href="ui.css?v=1789005589">
 
 <div class="shell">
 
   <!-- 頁首 -->
   <header class="card head">
     <div class="brand">
-      <div class="logo"><i data-lucide="layers"></i></div>
+      <img class="wordmark" src="logo.png" width="222" height="71" alt="億新精機廠">
+      <span class="vline"></span>
       <div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <h1>eson-flow</h1>
+          <h1>億新－製程查詢系統</h1>
           <span class="chipver">FM-PT-01 · B4</span>
         </div>
         <div class="sub">馬達鐵芯 產品做法主檔　一筆＝一個成品料號怎麼做</div>
@@ -83,6 +85,9 @@
     <div class="chips" id="custs"></div>
   </div>
 
+  <!-- 同一個成品料號被打了兩次以上、做法卻不同的，在這裡先攔一次 -->
+  <div id="clashbar"></div>
+
   <!-- 清單 -->
   <div class="card" style="overflow:hidden">
     <div id="body"></div>
@@ -99,15 +104,17 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1788940833"></script>
-<script src="fields.js?v=1788940833"></script>
+<script src="config.js?v=1789005589"></script>
+<script src="fields.js?v=1789005589"></script>
 <script type="module">
-import { requireLogin, list, meta, logout, currentEmail } from './db.js?v=1788940833';
+import { requireLogin, list, meta, logout, currentEmail, conflicts } from './db.js?v=1789005589';
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
 const icons = () => { try { lucide.createIcons(); } catch (e) {} };
 let KINDF = '', CUSTF = '', ROWS = [], OPEN = null;
+// 單號 → {pn, clash, others, diff}；同一個成品料號被打了兩次以上才會有東西
+let CLASH = new Map();
 
 // 選配欄位與站別清單都從 FORM 讀——表單改版後這裡自動跟著變
 const optFields = kind => FORM[kind].filter(i => i.op === 'field' && i.k.startsWith('o_'))
@@ -115,6 +122,26 @@ const optFields = kind => FORM[kind].filter(i => i.op === 'field' && i.k.startsW
 const stationsOf = kind => (FORM[kind].find(i => i.op === 'stations') || { list: [] }).list;
 
 const pctCls = p => p > 85 ? 'hi' : p > 50 ? 'mid' : 'lo';
+
+const clashTag = no => {
+  const c = CLASH.get(no);
+  if (!c) return '';
+  return c.clash
+    ? `<span class="clashtag" title="跟 ${esc(c.others.join('、'))} 同料號但做法不同">做法不一致</span>`
+    : `<span class="clashtag dup" title="跟 ${esc(c.others.join('、'))} 同料號、做法相同">重複</span>`;
+};
+
+// 撞號的單不一定在目前的篩選結果裡，所以這條橫幅是掃全表的，不跟著搜尋走
+function renderClashBar() {
+  const bad = [...CLASH.values()].filter(c => c.clash);
+  const pns = [...new Set(bad.map(c => c.pn))];
+  if (!pns.length) { $('clashbar').innerHTML = ''; return; }
+  $('clashbar').innerHTML = `<div class="card clashbar">
+    <span class="ic"><i data-lucide="alert-triangle"></i></span>
+    <div><b>有 ${pns.length} 個成品料號，同一個號碼被寫成不同的做法</b>
+      <div class="pns">${pns.map(p => `<code>${esc(p)}</code>`).join('')}</div>
+      <p>點下面清單裡標「做法不一致」的那幾張，會列出差在哪幾欄。</p></div></div>`;
+}
 
 // 這一段就是「以前怎麼做的」——不必開整張單就看得到
 function howMade(r) {
@@ -152,11 +179,30 @@ function howMade(r) {
   push('包裝', [d.boxtype, d.perbox && '每箱 ' + d.perbox, d.packway, d.labeltxt && '標籤 ' + d.labeltxt].filter(Boolean).join('　'));
   push('送貨地點', d.shipto);
   push('備註', d.worem);
+  // 完整度差在哪，直接列出來——不然只看到 78% 也不知道要補什麼
+  push('還沒答', r.missing.length ? r.missing.join('、') : '（都答完了）');
 
-  return `<div class="detail"><div class="kv">` +
+  return `<div class="detail">${clashBox(r)}<div class="kv">` +
     bits.map(([k, v]) => `<div><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join('') +
     `</div><div class="act"><a class="btn dark" href="form.html?no=${encodeURIComponent(r.no)}">
        <i data-lucide="external-link"></i><span>開啟這張單</span></a></div></div>`;
+}
+
+// 同一個成品料號打了兩次以上：做法不同就攤開差在哪一欄，做法一樣就只提醒重複
+function clashBox(r) {
+  const c = CLASH.get(r.no);
+  if (!c) return '';
+  const who = c.others.join('、');
+  if (!c.clash) {
+    return `<div class="warnbox dup"><b>成品料號 ${esc(c.pn)} 重複</b>
+      跟 ${esc(who)} 是同一個料號、做法也一樣。要留兩筆還是刪一筆，你決定。</div>`;
+  }
+  return `<div class="warnbox"><b>成品料號 ${esc(c.pn)} 撞號，但做法不一樣</b>
+    跟 ${esc(who)} 用同一個成品料號，下面這 ${c.diff.length} 個地方寫得不同——
+    一定有一邊是錯的，或是這兩個本來就該分成不同料號。
+    <table class="difftab"><thead><tr><th>欄位</th><th>${esc(r.no)}</th><th>${esc(c.others[0])}</th></tr></thead>
+    <tbody>${c.diff.map(x => `<tr><td>${esc(x.label)}</td><td>${esc(x.a)}</td><td>${esc(x.b)}</td></tr>`).join('')}</tbody>
+    </table></div>`;
 }
 
 function render() {
@@ -188,8 +234,9 @@ function render() {
       <td class="mono">${esc(d.mat)}</td>
       <td class="mono">${esc(d.shaft)}</td>
       <td class="mono">${esc(d.stack)}</td>
-      <td class="mono" style="font-size:11px">${esc(d.pnfin || d.custpn)}</td>
-      <td class="num"><span class="pct ${pctCls(r.complete)}">${r.complete}%</span></td></tr>`;
+      <td class="mono" style="font-size:11px">${esc(d.pnfin || d.custpn)}${clashTag(r.no)}</td>
+      <td class="num"><span class="pct ${pctCls(r.complete)}"${r.missing.length
+        ? ` title="還沒答：${esc(r.missing.join('、'))}"` : ''}>${r.complete}%</span></td></tr>`;
     if (OPEN === r.no) h += `<tr><td colspan="10" style="padding:0">${howMade(r)}</td></tr>`;
   });
   $('body').innerHTML = h + '</tbody></table></div>';
@@ -211,6 +258,8 @@ async function load() {
 // 累積進度：「等累積到三、五十張」就是這條的分母
 const TARGET = 50;
 async function loadMeta() {
+  CLASH = await conflicts().catch(() => new Map());
+  renderClashBar();
   const m = await meta();
   $('cAll').textContent = `(${m.total})`;
   $('cST').textContent = `(${m.byKind.ST || 0})`;
