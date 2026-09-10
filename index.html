@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ui.css?v=1789023851">
+<link rel="stylesheet" href="ui.css?v=1789027173">
 
 <div class="shell">
 
@@ -103,10 +103,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1789023851"></script>
-<script src="fields.js?v=1789023851"></script>
+<script src="config.js?v=1789027173"></script>
+<script src="fields.js?v=1789027173"></script>
 <script type="module">
-import { requireLogin, list, meta, logout, currentEmail, conflicts } from './db.js?v=1789023851';
+import { requireLogin, list, meta, logout, currentEmail, conflicts } from './db.js?v=1789027173';
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
