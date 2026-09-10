@@ -76,7 +76,12 @@ const shape = r => ({
 //
 // 比對時「空白」與「無」當同一件事：一邊留白、一邊勾無，那是填寫習慣不同，
 // 不是做法不同。備註是自由文字、客戶料號是對方的編號，都不影響怎麼做，不比。
+//
+// 2026-09-10 各區的 Know-how 備註（*_note）與加工站的重點欄（st*_eq）也不比：
+// 那是自己寫的經驗，同一件事這次寫「退火要慢」下次寫「退火不要太快」，
+// 比下去只會一直誤報。業主確認只比硬資料。
 const SKIP_CMP = new Set(['worem', 'custpn', 'pnfin']);
+const isNote = k => SKIP_CMP.has(k) || /_note$/.test(k) || /^st\d+_eq$/.test(k);
 const norm = v => {
   const s = String(v == null ? '' : v).trim();
   return s === '無' ? '' : s;
@@ -85,7 +90,7 @@ const norm = v => {
 export function recipeOf(d) {
   const out = {};
   for (const k of Object.keys(d || {})) {
-    if (SKIP_CMP.has(k)) continue;
+    if (isNote(k)) continue;
     const v = norm(d[k]);
     if (v) out[k] = v;
   }
@@ -101,7 +106,7 @@ const labelOf = (kind, k) => {
   if (m) {
     const st = (formOf(kind).find(i => i.op === 'stations') || { list: [] }).list[+m[1]];
     const n = st ? st.name.replace(/\s/g, '') : '工站' + m[1];
-    return m[2] === 'pass' ? n : n + ' 參數';
+    return m[2] === 'pass' ? n : n + ' 重點';
   }
   return k;
 };

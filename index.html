@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ui.css?v=1789009487">
+<link rel="stylesheet" href="ui.css?v=1789023851">
 
 <div class="shell">
 
@@ -103,10 +103,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1789009487"></script>
-<script src="fields.js?v=1789009487"></script>
+<script src="config.js?v=1789023851"></script>
+<script src="fields.js?v=1789023851"></script>
 <script type="module">
-import { requireLogin, list, meta, logout, currentEmail, conflicts } from './db.js?v=1789009487';
+import { requireLogin, list, meta, logout, currentEmail, conflicts } from './db.js?v=1789023851';
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
@@ -219,7 +219,8 @@ const RHEAD = `<div class="rhead"><span>編號</span><span>類別</span><span>�
 // 這一段就是「以前怎麼做的」——不必開整張單就看得到
 function howMade(r) {
   const d = r.data, bits = [];
-  const push = (k, v) => { if (v) bits.push([k, v]); };
+  // wide＝整列：Know-how 那種長文字塞在半格裡會擠成一條
+  const push = (k, v, wide) => { if (v) bits.push([k, v, wide]); };
   const stations = stationsOf(r.kind);
   const walked = r.stepsUsed.map(i => (stations[i] ? stations[i].name : '?').replace(/\s/g, ''));
   // 沖壓選配只列「有的」——空白與「無」都不顯示。
@@ -232,8 +233,10 @@ function howMade(r) {
   }).filter(Boolean);
   // 後製程同理：只列有做的
   const notNone = v => { const s = String(v || '').trim(); return s && s !== '無' ? s : ''; };
-  const post = [notNone(d.p_opt), d.p_ring === '有' ? '端環' : '',
-                d.p_fan === '有' ? '扇葉/平衡柱' : '', notNone(d.p_other)]
+  // 9/10 轉子的端環、扇葉改成手打（寫實際規格）。舊資料還是「有」的，就只顯示名稱。
+  const named = (label, v) => { const s = notNone(v); return !s ? '' : s === '有' ? label : label + ' ' + s; };
+  const post = [notNone(d.p_opt), named('端環', d.p_ring), named('扇葉/平衡柱', d.p_fan),
+                notNone(d.p_other)]
     .filter(Boolean).join('、').replace(/\|/g, '、');
 
   push('模具', [d.mold, d.spec, d.slots && d.slots + '槽'].filter(Boolean).join('　'));
@@ -242,21 +245,26 @@ function howMade(r) {
   push('積層・廠別', [d.form, d.plant].filter(Boolean).join('　'));
   push('沖壓', [d.press && '沖床 ' + d.press, d.skewset && '斜度設定 ' + d.skewset].filter(Boolean).join('　'));
   push('沖壓選配', opts.join('　'));
+  push('沖壓備註', d.press_note, true);
   push('走過的站', walked.join(' → ') || '（未填）');
-  // 各站的爐號／溫度／時間才是「怎麼做」的關鍵，要列出來
-  push('製程參數', r.stepsUsed
-    .map(i => d['st' + i + '_eq'] && ((stations[i] ? stations[i].name : '?').replace(/\s/g, '') + ' ' + d['st' + i + '_eq']))
-    .filter(Boolean).join('　'));
+  // 各站的 Know-how 才是「下次照同樣方法做」的關鍵：一站一行、全文列出
+  push('各站重點', stations.map((s, i) => {
+    const t = String(d['st' + i + '_eq'] || '').trim();
+    return t ? s.name.replace(/\s/g, '') + '：' + t : '';
+  }).filter(Boolean).join('\n'), true);
   push('後製程', post);
+  push('後製程備註', d.post_note, true);
   push('委外', [d.out1, d.outv].filter(Boolean).join(' / ').replace(/\|/g, '、'));
+  push('委外備註', d.out_note, true);
   push('包裝', [d.boxtype, d.perbox && '每箱 ' + d.perbox, d.packway, d.labeltxt && '標籤 ' + d.labeltxt].filter(Boolean).join('　'));
+  push('包裝備註', d.pack_note, true);
   push('送貨地點', d.shipto);
-  push('備註', d.worem);
+  push('其他備註', d.worem, true);
   // 完整度差在哪，直接列出來——不然只看到 78% 也不知道要補什麼
   push('還沒答', r.missing.length ? r.missing.join('、') : '（都答完了）');
 
   return `<div class="detail">${clashBox(r)}<div class="kv">` +
-    bits.map(([k, v]) => `<div><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join('') +
+    bits.map(([k, v, wide]) => `<div${wide ? ' class="wide"' : ''}><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join('') +
     `</div><div class="act"><a class="btn dark" href="form.html?no=${encodeURIComponent(r.no)}">
        <i data-lucide="external-link"></i><span>開啟這張單</span></a></div></div>`;
 }

@@ -248,7 +248,9 @@ td.strong{font-weight:700;color:var(--s900)}
   border-right:1px solid var(--line);min-width:0}
 .detail .kv > div:nth-child(2n){border-right:none}
 .detail .kv .k{font-size:13px;font-weight:700;color:var(--s900);margin-bottom:4px}
-.detail .kv .v{font-size:14px;color:var(--s700);word-break:break-word}
+/* pre-line：Know-how 裡按 Enter 分的點要照樣分行顯示 */
+.detail .kv .v{font-size:14px;color:var(--s700);word-break:break-word;white-space:pre-line}
+.detail .kv > div.wide{grid-column:1/-1;border-right:none}
 .detail .act{padding:12px 14px}
 @media (max-width:720px){.detail .kv{grid-template-columns:1fr}
   .detail .kv > div{border-right:none}}

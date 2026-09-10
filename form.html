@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <!-- ui.css 提供登入遮罩與工控外殼；style.css 後載，表單本體與 A4 列印樣式以它為準 -->
-<link rel="stylesheet" href="ui.css?v=1789009487">
-<link rel="stylesheet" href="style.css?v=1789009487">
+<link rel="stylesheet" href="ui.css?v=1789023851">
+<link rel="stylesheet" href="style.css?v=1789023851">
 
 <div class="wrap">
 
@@ -49,18 +49,18 @@
 
 <footer class="noprint note">
   <span id="rule"></span><br>
-  鑄鋁規格、鉚高、端徑目前沒有專屬欄位，請寫在「製令備註」。<br>
+  鑄鋁規格、鉚高、端徑目前沒有專屬欄位，請寫在「其他備註」。<br>
   欄位由 <code>製程流動單8.28.xlsx</code> 同步產生；要改欄位請改那個檔，再跑 <code>更新流動單.bat</code>。
 </footer>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1789009487"></script>
-<script src="banner.js?v=1789009487"></script>
-<script src="fields.js?v=1789009487"></script>
+<script src="config.js?v=1789023851"></script>
+<script src="banner.js?v=1789023851"></script>
+<script src="fields.js?v=1789023851"></script>
 <script type="module">
-import { requireLogin, get, create, update, derive, samePn, diffRecipe, meta } from './db.js?v=1789009487';
+import { requireLogin, get, create, update, derive, samePn, diffRecipe, meta } from './db.js?v=1789023851';
 
 const qs = new URLSearchParams(location.search);
 let NO = qs.get('no') || '';
@@ -75,8 +75,14 @@ let CUSTS = [];
 const draftKey = () => 'eson-draft-' + (NO || 'new-' + KIND);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+// Know-how 多行格。後面跟一個 .pv 是列印用的鏡像：textarea 印出來只有框的高度，
+// 字多了會被切掉；鏡像是普通的 div，字有多少就長多高，印兩頁也不吃字。
+const noteBox = (k, v, ph) =>
+  `<textarea data-k="${k}" rows="2" placeholder="${esc(ph)}">${esc(v)}</textarea><div class="pv">${esc(v)}</div>`;
+const grow = el => { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 2) + 'px'; };
+
 function field(f) {
-  const cls = 'f' + (f.w === 2 ? ' w2' : '');
+  const cls = 'f' + (f.w === 2 ? ' w2' : f.w === 4 ? ' w4' : '');
   const v = D[f.k] || '';
   const opts = f.list || LISTS[f.listName] || [];
   let inner;
@@ -89,6 +95,8 @@ function field(f) {
     inner = '<div class="opts">' + opts.map(o =>
       `<label><input type="${f.type === 'checks' ? 'checkbox' : 'radio'}" name="${f.k}" value="${esc(o)}" data-k="${f.k}" data-multi="${f.type === 'checks' ? 1 : 0}"${cur.includes(o) ? ' checked' : ''}>${esc(o)}</label>`
     ).join('') + '</div>';
+  } else if (f.type === 'note') {
+    inner = noteBox(f.k, v, '重點、要注意的地方、下次照著做的方法（可以按 Enter 換行分點寫）');
   } else {
     // 客戶那一格接一份既有客戶清單：打字時跳出來讓你選，選了才不會分岔成兩個資料夾
     const dl = f.k === 'cust' ? ' list="dl-cust" autocomplete="off"' : '';
@@ -97,11 +105,13 @@ function field(f) {
   return `<div class="${cls}"><label>${esc(f.l)}</label>${inner}${f.note ? `<div class="note">${esc(f.note)}</div>` : ''}</div>`;
 }
 
-// B4 做法主檔：加工站只剩「走過哪些站」與「用什麼設備／爐號／溫度時間」。
+// B4 做法主檔：加工站只剩「走過哪些站」與「這一站的重點 Know-how」。
 // 日期、完成數、不良數、檢驗、簽名那五欄是批次紀錄，已隨改版拿掉。
-function stationTable(list, passcol) {
+// 9/10 第三欄由「設備／爐號・溫度時間」改成 Know-how，欄名跟著 Excel 走；
+// 欄位鍵仍是 st*_eq，之前打的爐號溫度會原封不動出現在這一格。
+function stationTable(list, passcol, notecol) {
   let h = `<div class="tw"><table><thead><tr><th>工　站</th><th class="na">${esc(passcol)}</th>
-    <th>設備／爐號・溫度時間</th></tr></thead><tbody>`;
+    <th>${esc(notecol || '重點 Know-how')}</th></tr></thead><tbody>`;
   list.forEach((s, i) => {
     const cur = D['st' + i + '_pass'] || '';
     const opts = s.pass_opts && s.pass_opts.length ? s.pass_opts : ['有', '無'];
@@ -109,8 +119,7 @@ function stationTable(list, passcol) {
       <td class="na"><div class="opts">` + opts.map(o =>
         `<label><input type="radio" name="st${i}_pass" value="${esc(o)}" data-k="st${i}_pass" data-multi="0"${cur === o ? ' checked' : ''}>${esc(o)}</label>`
       ).join('') + `</div></td>
-      <td><input type="text" data-k="st${i}_eq" value="${esc(D['st' + i + '_eq'] || '')}"
-          placeholder="例：3號爐 720℃ 2天"></td></tr>`;
+      <td>${noteBox('st' + i + '_eq', D['st' + i + '_eq'] || '', '這一站的重點、爐號溫度時間、要注意的地方')}</td></tr>`;
   });
   return h + '</tbody></table></div>';
 }
@@ -125,7 +134,7 @@ function render() {
   const datalist = `<datalist id="dl-cust">${CUSTS.map(c => `<option value="${esc(c)}"></option>`).join('')}</datalist>`;
   document.getElementById('form').innerHTML = datalist + sections(KIND).map(s => {
     let bodyHtml = '';
-    if (s.stations) bodyHtml += stationTable(s.stations, s.passcol);
+    if (s.stations) bodyHtml += stationTable(s.stations, s.passcol, s.notecol);
     if (s.f.length) bodyHtml += '<div class="grid">' + s.f.map(field).join('') + '</div>';
     return `<section><div class="sh sh--${esc(s.tone || 'navy')}">${esc(s.t)}${s.who ? `<span class="who">${esc(s.who)}</span>` : ''}</div>${bodyHtml}</section>`;
   }).join('');
@@ -197,6 +206,7 @@ async function checkPn() {
 
 function bind() {
   document.querySelectorAll('[data-k]').forEach(el => {
+    if (el.tagName === 'TEXTAREA') grow(el);
     const ev = el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'radio' ? 'change' : 'input';
     el.addEventListener(ev, () => {
       const k = el.dataset.k;
@@ -204,7 +214,11 @@ function bind() {
         D[k] = [...document.querySelectorAll(`[data-k="${k}"]:checked`)].map(x => x.value).join('|');
       } else if (el.type === 'checkbox') {
         D[k] = el.checked ? el.value : '';
-      } else { D[k] = el.value; }
+      } else {
+        D[k] = el.value;
+        // 多行格：跟著字長高，順便更新列印用的鏡像
+        if (el.tagName === 'TEXTAREA') { grow(el); el.nextElementSibling.textContent = el.value; }
+      }
       dirty = true;
       localStorage.setItem(draftKey(), JSON.stringify(D));
       markDirty();

@@ -271,9 +271,16 @@ const FORM = {
    "w": 12
   },
   {
+   "op": "field",
+   "k": "press_note",
+   "l": "沖壓備註",
+   "type": "note",
+   "w": 44
+  },
+  {
    "op": "sec",
    "title": "肆、靜子 ST 加工站",
-   "note": "走過的站打勾，並註明爐號／溫度／時間等關鍵參數",
+   "note": "走過的站打勾，並寫下這一站的重點 Know-how",
    "tone": "orange"
   },
   {
@@ -308,7 +315,8 @@ const FORM = {
       "無"
      ]
     }
-   ]
+   ],
+   "notecol": "重點 Know-how"
   },
   {
    "op": "field",
@@ -330,6 +338,13 @@ const FORM = {
    "l": "其他",
    "type": "text",
    "w": 16
+  },
+  {
+   "op": "field",
+   "k": "post_note",
+   "l": "後製程備註",
+   "type": "note",
+   "w": 43
   },
   {
    "op": "sec",
@@ -359,6 +374,13 @@ const FORM = {
    "w": 15
   },
   {
+   "op": "field",
+   "k": "pack_note",
+   "l": "包裝備註",
+   "type": "note",
+   "w": 44
+  },
+  {
    "op": "sec",
    "title": "陸、備註",
    "note": "",
@@ -367,13 +389,13 @@ const FORM = {
   {
    "op": "field",
    "k": "worem",
-   "l": "製令備註",
-   "type": "text",
+   "l": "其他備註",
+   "type": "note",
    "w": 44
   },
   {
    "op": "rule",
-   "text": "說明：這張單記的是「這個料號怎麼做」，不是「這一批做了多少」。走過的站請打勾並註明爐號／溫度／時間等關鍵參數；做法有變更時直接更新這一筆。"
+   "text": "說明：這張單記的是「這個料號怎麼做」，不是「這一批做了多少」。走過的站請打勾；各站與各區的重點、眉角寫在 Know-how／備註格，下次照著做。做法有變更時直接更新這一筆。"
   }
  ],
  "RO": [
@@ -446,6 +468,39 @@ const FORM = {
     "一廠",
     "二廠"
    ]
+  },
+  {
+   "op": "field",
+   "k": "p_ring",
+   "l": "端環",
+   "type": "text",
+   "w": 6
+  },
+  {
+   "op": "field",
+   "k": "p_fan",
+   "l": "扇葉／平衡柱",
+   "type": "text",
+   "w": 6
+  },
+  {
+   "op": "field",
+   "k": "p_opt",
+   "l": "其他後製程",
+   "type": "checks",
+   "w": 6,
+   "list": [
+    "染黑",
+    "綠色膠帶",
+    "無"
+   ]
+  },
+  {
+   "op": "field",
+   "k": "p_other",
+   "l": "其他",
+   "type": "text",
+   "w": 6
   },
   {
    "op": "sec",
@@ -622,9 +677,16 @@ const FORM = {
    "w": 19
   },
   {
+   "op": "field",
+   "k": "press_note",
+   "l": "沖壓備註",
+   "type": "note",
+   "w": 44
+  },
+  {
    "op": "sec",
    "title": "肆、轉子 RO 加工站",
-   "note": "走過的站打勾，並註明爐號／溫度／時間等關鍵參數",
+   "note": "走過的站打勾，並寫下這一站的重點 Know-how",
    "tone": "orange"
   },
   {
@@ -687,58 +749,12 @@ const FORM = {
       "無"
      ]
     }
-   ]
+   ],
+   "notecol": "重點 Know-how"
   },
   {
    "op": "sec",
-   "title": "伍、後製程選配",
-   "note": "不是獨立工站，但會決定是不是不同的成品",
-   "tone": "purple"
-  },
-  {
-   "op": "field",
-   "k": "p_ring",
-   "l": "端環",
-   "type": "radio",
-   "w": 12,
-   "list": [
-    "有",
-    "無"
-   ]
-  },
-  {
-   "op": "field",
-   "k": "p_fan",
-   "l": "扇葉／平衡柱",
-   "type": "radio",
-   "w": 12,
-   "list": [
-    "有",
-    "無"
-   ]
-  },
-  {
-   "op": "field",
-   "k": "p_opt",
-   "l": "其他後製程",
-   "type": "checks",
-   "w": 12,
-   "list": [
-    "染黑",
-    "綠色膠帶",
-    "無"
-   ]
-  },
-  {
-   "op": "field",
-   "k": "p_other",
-   "l": "其他",
-   "type": "text",
-   "w": 12
-  },
-  {
-   "op": "sec",
-   "title": "陸、委外加工",
+   "title": "伍、委外加工",
    "note": "本單留廠內，不隨貨出廠",
    "tone": "wine"
   },
@@ -763,8 +779,15 @@ const FORM = {
    "w": 28
   },
   {
+   "op": "field",
+   "k": "out_note",
+   "l": "委外備註",
+   "type": "note",
+   "w": 44
+  },
+  {
    "op": "sec",
-   "title": "柒、包裝",
+   "title": "陸、包裝",
    "note": "箱型與每箱數量是選箱規則的來源，務必填寫",
    "tone": "green"
   },
@@ -790,21 +813,28 @@ const FORM = {
    "w": 15
   },
   {
+   "op": "field",
+   "k": "pack_note",
+   "l": "包裝備註",
+   "type": "note",
+   "w": 44
+  },
+  {
    "op": "sec",
-   "title": "捌、備註",
+   "title": "柒、備註",
    "note": "",
    "tone": "grey"
   },
   {
    "op": "field",
    "k": "worem",
-   "l": "製令備註",
-   "type": "text",
+   "l": "其他備註",
+   "type": "note",
    "w": 44
   },
   {
    "op": "rule",
-   "text": "說明：這張單記的是「這個料號怎麼做」，不是「這一批做了多少」。走過的站請打勾並註明爐號／溫度／時間等關鍵參數；做法有變更時直接更新這一筆。"
+   "text": "說明：這張單記的是「這個料號怎麼做」，不是「這一批做了多少」。走過的站請打勾；各站與各區的重點、眉角寫在 Know-how／備註格，下次照著做。做法有變更時直接更新這一筆。"
   }
  ]
 };
@@ -821,11 +851,13 @@ function sections(kind) {
       if (!cur) { cur = { t: '', who: '', f: [] }; out.push(cur); }
       cur.stations = it.list;
       cur.passcol = it.passcol;
+      cur.notecol = it.notecol;
     } else if (it.op === 'rule') {
       // 結尾填寫規定，畫面上放頁尾，不進表單
     } else if (it.op === 'field') {
       if (!cur) { cur = { t: '', who: '', f: [] }; out.push(cur); }
-      cur.f.push(it.w >= 40 ? { ...it, w: 2 } : it);
+      // 備註（Know-how）佔滿整列；其餘很寬的欄位佔半列
+      cur.f.push(it.type === 'note' ? { ...it, w: 4 } : it.w >= 40 ? { ...it, w: 2 } : it);
     }
   }
   return out;

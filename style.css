@@ -139,6 +139,15 @@ td.st small{display:block;font-weight:400;color:var(--ink-2);font-size:12px}
 table input,table select{width:100%;font:inherit;font-size:13.5px;min-height:34px;
   padding:3px 7px;border:1px solid var(--rule-2);border-radius:6px;
   background:var(--surface);color:var(--ink)}
+/* Know-how 多行格：跟著字數長高（JS 算高度），手動也能往下拉 */
+.f textarea,table textarea{resize:vertical;line-height:1.55;overflow:hidden}
+.f textarea{min-height:64px}
+table textarea{width:100%;font:inherit;font-size:13.5px;min-height:34px;
+  padding:5px 7px;border:1px solid var(--rule-2);border-radius:6px;
+  background:var(--surface);color:var(--ink);display:block}
+table textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--ring)}
+/* 列印用的鏡像，螢幕上不出現 */
+.pv{display:none}
 td.qc{background:var(--qc-soft)}
 td.hi input{background:var(--stat)}
 /* 靜子也改用「經過 有/無」之後，78px 塞不下兩顆會被擠成上下兩行，整列變得很高 */
@@ -194,7 +203,16 @@ table.rows tbody tr:hover td{background:var(--accent-soft)}
   body{background:#fff;color:#000;font-size:9pt}
   .wrap{max-width:none;padding:0}
   .top,footer,.banner,.noprint{display:none!important}
-  section{break-inside:avoid;border:1px solid #000;border-radius:0;margin-top:4pt;box-shadow:none}
+  /* 9/10 起 Know-how 全文照印，寫多了會超過一頁——整區不能再「不准拆」，
+     改成只保護一格一列不被切成兩半，區塊標題不落單在頁尾。 */
+  section{break-inside:auto;border:1px solid #000;border-radius:0;margin-top:4pt;box-shadow:none}
+  .f,tr{break-inside:avoid}
+  .sh{break-after:avoid}
+  /* textarea 印出來只有框的高度，換成鏡像 div，字有多少印多少 */
+  .f textarea,table textarea{display:none!important}
+  .pv{display:block!important;white-space:pre-wrap;word-break:break-word;
+    font-size:8.5pt;line-height:1.45;min-height:14pt;padding:1pt 2pt;
+    border-bottom:.5pt solid #000}
   /* 列印也用同一組區塊色（PDF 版就是彩色的，兩邊要一致）。
      print-color-adjust:exact 才不會被瀏覽器「省墨」把底色吃掉。 */
   .sh{background:var(--sec, #000)!important;color:#fff;padding:3pt 6pt;font-size:10pt;
