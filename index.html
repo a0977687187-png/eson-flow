@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ui.css?v=1789005589">
+<link rel="stylesheet" href="ui.css?v=1789009487">
 
 <div class="shell">
 
@@ -36,7 +36,7 @@
   </header>
 
   <!-- 分類頁籤 ＋ 開單 -->
-  <section id="topgrid" style="display:grid;grid-template-columns:1.35fr 1fr;gap:14px">
+  <section class="topgrid">
     <div class="card tabs">
       <button class="tab" data-kind="" aria-pressed="true">
         <span class="n">全部做法</span><span class="c" id="cAll">(0)</span></button>
@@ -45,7 +45,7 @@
       <button class="tab" data-kind="RO" aria-pressed="false">
         <span class="n">轉子 RO</span><span class="c" id="cRO">(0)</span></button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="newbtns">
       <a class="btn dark lg" style="justify-content:center" href="form.html?kind=ST">
         <i data-lucide="plus-circle"></i><span>＋ 建立靜子做法</span></a>
       <a class="btn blue lg" style="justify-content:center" href="form.html?kind=RO">
@@ -82,13 +82,12 @@
       </div>
       <button class="btn" id="btnReload" title="重新整理"><i data-lucide="refresh-cw"></i></button>
     </div>
-    <div class="chips" id="custs"></div>
   </div>
 
   <!-- 同一個成品料號被打了兩次以上、做法卻不同的，在這裡先攔一次 -->
   <div id="clashbar"></div>
 
-  <!-- 清單 -->
+  <!-- 客戶資料夾 -->
   <div class="card" style="overflow:hidden">
     <div id="body"></div>
     <div class="tfoot">
@@ -104,17 +103,19 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1789005589"></script>
-<script src="fields.js?v=1789005589"></script>
+<script src="config.js?v=1789009487"></script>
+<script src="fields.js?v=1789009487"></script>
 <script type="module">
-import { requireLogin, list, meta, logout, currentEmail, conflicts } from './db.js?v=1789005589';
+import { requireLogin, list, meta, logout, currentEmail, conflicts } from './db.js?v=1789009487';
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
 const icons = () => { try { lucide.createIcons(); } catch (e) {} };
-let KINDF = '', CUSTF = '', ROWS = [], OPEN = null;
+let KINDF = '', ROWS = [], OPEN = null;
 // 單號 → {pn, clash, others, diff}；同一個成品料號被打了兩次以上才會有東西
 let CLASH = new Map();
+// 目前展開中的客戶資料夾。沒填客戶的那一組鍵就是空字串。
+const OPENC = new Set();
 
 // 選配欄位與站別清單都從 FORM 讀——表單改版後這裡自動跟著變
 const optFields = kind => FORM[kind].filter(i => i.op === 'field' && i.k.startsWith('o_'))
@@ -122,6 +123,10 @@ const optFields = kind => FORM[kind].filter(i => i.op === 'field' && i.k.startsW
 const stationsOf = kind => (FORM[kind].find(i => i.op === 'stations') || { list: [] }).list;
 
 const pctCls = p => p > 85 ? 'hi' : p > 50 ? 'mid' : 'lo';
+const fmtDay = iso => {
+  const d = new Date(iso || 0);
+  return isNaN(d) || !iso ? '' : (d.getMonth() + 1) + '/' + d.getDate();
+};
 
 const clashTag = no => {
   const c = CLASH.get(no);
@@ -140,8 +145,76 @@ function renderClashBar() {
     <span class="ic"><i data-lucide="alert-triangle"></i></span>
     <div><b>有 ${pns.length} 個成品料號，同一個號碼被寫成不同的做法</b>
       <div class="pns">${pns.map(p => `<code>${esc(p)}</code>`).join('')}</div>
-      <p>點下面清單裡標「做法不一致」的那幾張，會列出差在哪幾欄。</p></div></div>`;
+      <p>下面標「做法不一致」的資料夾點開，會列出差在哪幾欄。</p></div></div>`;
 }
+
+// ── 客戶分組 ────────────────────────────────────────────────
+// 一家客戶一個資料夾。客戶那一欄是自由文字，所以這裡不做任何歸一——
+// 防呆是在填寫頁做的（打字時跳出已有的客戶讓你選），不是在這裡硬併。
+function groupRows(rows) {
+  const m = new Map();
+  for (const r of rows) {
+    const c = String(r.data.cust || '').trim();
+    if (!m.has(c)) m.set(c, []);
+    m.get(c).push(r);
+  }
+  const out = [...m].map(([cust, list]) => ({
+    cust, list,
+    st: list.filter(r => r.kind === 'ST').length,
+    ro: list.filter(r => r.kind === 'RO').length,
+    specs: [...new Set(list.map(r => String(r.data.spec || '').trim()).filter(Boolean))],
+    updated: list.reduce((a, r) => (r.updated > a ? r.updated : a), ''),
+    bad: list.some(r => (CLASH.get(r.no) || {}).clash),
+  }));
+  // 沒填客戶的排最上面（那是待補的，不是一家客戶），其餘筆數多的在上
+  out.sort((a, b) => (a.cust === '' ? -1 : b.cust === '' ? 1 : 0)
+    || b.list.length - a.list.length
+    || a.cust.localeCompare(b.cust, 'zh-Hant'));
+  return out;
+}
+
+function folderHead(g, open) {
+  const shown = g.specs.slice(0, 3).map(s => `<b>${esc(s)}</b>`).join('、');
+  const more = g.specs.length > 3 ? ` +${g.specs.length - 3}` : '';
+  return `<button class="fhead" data-cust="${esc(g.cust)}" aria-expanded="${open}">
+    <span class="chev"><i data-lucide="chevron-right"></i></span>
+    <span class="fname${g.cust ? '' : ' none'}">${g.cust ? esc(g.cust) : '（還沒填客戶）'}</span>
+    <span class="fcount">做法 ${g.list.length} 筆</span>
+    <span class="fkinds">ST ${g.st} · RO ${g.ro}</span>
+    <span class="fspecs">${g.specs.length ? '規格 ' + shown + more : ''}</span>
+    ${g.bad ? '<span class="clashtag">做法不一致</span>' : ''}
+    <span class="fupd">${esc(fmtDay(g.updated))}</span>
+  </button>`;
+}
+
+// 有值才掛 data-l：手機上那個欄位名是用 CSS 的 ::before 補的，
+// 沒值的格子連標籤都不要出現，不然一堆「材質」「軸孔」後面空空的。
+const cell = (cls, label, html) =>
+  `<span class="${cls}"${html ? ` data-l="${esc(label)}"` : ''}>${html}</span>`;
+
+function rowHtml(r) {
+  const d = r.data;
+  const ic = r.kind === 'RO' ? 'rotate-cw' : 'file-text';
+  const mold = (d.mold || d.spec)
+    ? `<b>${esc(d.mold) || '—'}</b><i>${esc(d.spec)}</i>` : '';
+  return `<div class="rrow${OPEN === r.no ? ' open' : ''}" data-no="${esc(r.no)}">
+    <span class="c-no"><span class="ic"><i data-lucide="${ic}"></i></span>${esc(r.no)}</span>
+    <span class="c-kind"><span class="tag ${r.kind}">${r.kind === 'ST' ? '靜子 ST' : '轉子 RO'}</span></span>
+    ${cell('c-mold', '模具', mold)}
+    ${cell('c-slots mono', '槽數', esc(d.slots))}
+    ${cell('c-mat mono', '材質', esc(d.mat))}
+    ${cell('c-shaft mono', '軸孔', esc(d.shaft))}
+    ${cell('c-stack mono', '疊厚', esc(d.stack))}
+    ${cell('c-cpn mono', '客戶料號', esc(d.custpn))}
+    ${cell('c-fpn mono', '成品料號', esc(d.pnfin) + clashTag(r.no))}
+    <span class="c-pct" data-l="完整度"><span class="pct ${pctCls(r.complete)}"${r.missing.length
+      ? ` title="還沒答：${esc(r.missing.join('、'))}"` : ''}>${r.complete}%</span></span>
+  </div>`;
+}
+
+const RHEAD = `<div class="rhead"><span>編號</span><span>類別</span><span>模具 / 規格</span>
+  <span>槽數</span><span>材質</span><span>軸孔</span><span>疊厚</span>
+  <span>客戶料號</span><span>成品料號</span><span>完整度</span></div>`;
 
 // 這一段就是「以前怎麼做的」——不必開整張單就看得到
 function howMade(r) {
@@ -206,49 +279,43 @@ function clashBox(r) {
 }
 
 function render() {
+  const groups = groupRows(ROWS);
+  // 只有一家的時候不必再叫人點一下
+  if (groups.length === 1) OPENC.add(groups[0].cust);
+
   $('cnt').textContent = ROWS.length
-    ? `顯示 ${ROWS.length} 張` + (CUSTF ? `　·　客戶：${CUSTF}` : '')
+    ? `${groups.length} 家客戶　·　共 ${ROWS.length} 筆做法`
     : '沒有符合的單';
   if (!ROWS.length) {
     $('body').innerHTML = `<div class="empty"><b>還沒有符合的做法</b>
       系統是空的沒關係——它靠現場填進來的單長大。<br>
-      按上面「＋ 靜子 ST 開單」或「＋ 轉子 RO 開單」建第一張。</div>`;
+      按上面「＋ 建立靜子做法」或「＋ 建立轉子做法」建第一張。</div>`;
     return;
   }
-  // 做法主檔沒有批次，所以沒有數量／狀態／不良——換成能辨識產品的欄位
-  let h = `<div class="tablewrap"><table class="rows"><thead><tr>
-    <th>編號</th><th>類別</th><th>客戶</th><th>模具 / 規格</th><th>槽數</th>
-    <th>材質</th><th>軸孔</th><th>疊厚</th><th>料號</th>
-    <th style="text-align:right">做法完整度</th>
-    </tr></thead><tbody>`;
-  ROWS.forEach(r => {
-    const d = r.data;
-    const ic = r.kind === 'RO' ? 'rotate-cw' : 'file-text';
-    h += `<tr data-no="${esc(r.no)}"${OPEN === r.no ? ' class="open"' : ''}>
-      <td class="no"><span class="ic"><i data-lucide="${ic}"></i></span>${esc(r.no)}</td>
-      <td><span class="tag ${r.kind}">${r.kind === 'ST' ? '靜子 ST' : '轉子 RO'}</span></td>
-      <td class="strong">${esc(d.cust) || '—'}</td>
-      <td><div class="strong">${esc(d.mold) || '—'}</div>
-          <div class="mono" style="font-size:11px;color:var(--s400)">${esc(d.spec) || ''}</div></td>
-      <td class="mono">${esc(d.slots)}</td>
-      <td class="mono">${esc(d.mat)}</td>
-      <td class="mono">${esc(d.shaft)}</td>
-      <td class="mono">${esc(d.stack)}</td>
-      <td class="mono" style="font-size:11px">${esc(d.pnfin || d.custpn)}${clashTag(r.no)}</td>
-      <td class="num"><span class="pct ${pctCls(r.complete)}"${r.missing.length
-        ? ` title="還沒答：${esc(r.missing.join('、'))}"` : ''}>${r.complete}%</span></td></tr>`;
-    if (OPEN === r.no) h += `<tr><td colspan="10" style="padding:0">${howMade(r)}</td></tr>`;
-  });
-  $('body').innerHTML = h + '</tbody></table></div>';
-  document.querySelectorAll('tr[data-no]').forEach(tr => tr.addEventListener('click', () => {
-    OPEN = OPEN === tr.dataset.no ? null : tr.dataset.no; render();
+  $('body').innerHTML = groups.map(g => {
+    const open = OPENC.has(g.cust);
+    const inner = open
+      ? RHEAD + g.list.map(r => rowHtml(r) + (OPEN === r.no ? howMade(r) : '')).join('')
+      : '';
+    return `<div class="folder${open ? ' open' : ''}">${folderHead(g, open)}${inner}</div>`;
+  }).join('');
+
+  document.querySelectorAll('.fhead').forEach(b => b.addEventListener('click', () => {
+    const c = b.dataset.cust;
+    if (OPENC.has(c)) { OPENC.delete(c); OPEN = null; } else { OPENC.add(c); }
+    render();
+  }));
+  document.querySelectorAll('.rrow').forEach(el => el.addEventListener('click', () => {
+    OPEN = OPEN === el.dataset.no ? null : el.dataset.no; render();
   }));
   icons();
 }
 
 async function load() {
   try {
-    ROWS = await list({ q: $('q').value.trim(), kind: KINDF, cust: CUSTF });
+    ROWS = await list({ q: $('q').value.trim(), kind: KINDF });
+    // 搜尋的時候把有命中的客戶自動打開，不然只看到一排收合的資料夾
+    if ($('q').value.trim()) groupRows(ROWS).forEach(g => OPENC.add(g.cust));
     render();
   } catch (e) {
     $('body').innerHTML = `<div class="empty"><b>讀不到資料</b>${esc(e.message)}</div>`;
@@ -272,14 +339,6 @@ async function loadMeta() {
   $('gLeft').textContent = m.total >= TARGET ? '樣本已足夠' : `還差 ${TARGET - m.total} 張`;
   $('pillState').textContent = m.total >= TARGET ? '樣本已足夠' : '累積中';
 
-  $('custs').innerHTML = m.customers.length
-    ? m.customers.map(c => `<button class="chip" data-cust="${esc(c.v)}" aria-pressed="${CUSTF === c.v}">${esc(c.v)}<span class="n">${c.n}</span></button>`).join('')
-    : '<span style="font-size:12px;color:var(--s400)">客戶清單會隨著單子填進來自動出現，不需要事先建檔。</span>';
-  document.querySelectorAll('[data-cust]').forEach(b => b.addEventListener('click', () => {
-    CUSTF = CUSTF === b.dataset.cust ? '' : b.dataset.cust;
-    document.querySelectorAll('[data-cust]').forEach(x => x.setAttribute('aria-pressed', x.dataset.cust === CUSTF));
-    OPEN = null; load();
-  }));
   $('hintFoot').textContent = `模具 ${m.molds.length} 套 · 規格 ${m.specs.length} 種 · 客戶 ${m.customers.length} 家`;
 }
 

@@ -86,6 +86,13 @@ body{margin:0;background:var(--page);color:var(--s700);font-family:var(--font);
 .formhead .sub{transition:color .15s}
 
 /* ── 分類頁籤 ─────────────────────────────────── */
+/* 頁籤 ＋ 開單鈕那一列。手機上兩欄擠成一團，所以窄螢幕改成上下排。 */
+.topgrid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px}
+.newbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:820px){
+  .topgrid{grid-template-columns:1fr;gap:10px}
+  .tab .n{font-size:14px}
+}
 .tabs{display:flex;gap:8px;padding:8px}
 .tab{flex:1;font:inherit;cursor:pointer;border:1px solid transparent;border-radius:var(--r-sm);
   background:var(--s50);color:var(--s700);padding:10px 8px;text-align:center;transition:.13s}
@@ -167,6 +174,68 @@ td.strong{font-weight:700;color:var(--s900)}
 .state.wait i{background:var(--s400)}
 .pct{font-family:var(--mono);font-weight:800}
 .pct.hi{color:var(--ok)} .pct.mid{color:var(--warn)} .pct.lo{color:var(--bad)}
+
+/* ── 客戶資料夾（主頁清單） ──────────────────────
+   2026-09-10 清單改成一家客戶一個資料夾，預設收合。
+   刻意不用 <table>：手機上要把同一份 HTML 直接變成一筆一塊的卡片，
+   表格那種 colspan 結構做不到，grid 換個 template 就好。 */
+.folder{border-bottom:1px solid var(--line)}
+.folder:last-child{border-bottom:none}
+.fhead{width:100%;font:inherit;text-align:left;cursor:pointer;border:none;
+  display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+  padding:13px 16px;background:var(--card);transition:.1s}
+.fhead:hover{background:var(--s50)}
+.folder.open>.fhead{background:var(--b50)}
+.fhead .chev{flex:none;display:flex;color:var(--s400);transition:transform .15s}
+.fhead .chev svg{width:17px;height:17px}
+.folder.open>.fhead .chev{transform:rotate(90deg);color:var(--b600)}
+.fhead .fname{font-size:15px;font-weight:800;color:var(--s900)}
+.fhead .fname.none{color:var(--s400);font-weight:700}
+.fhead .fcount{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--b600);
+  background:var(--b50);border:1px solid #BAE6FD;border-radius:999px;padding:2px 9px;
+  white-space:nowrap}
+.fhead .fkinds{font-family:var(--mono);font-size:11.5px;color:var(--s400);white-space:nowrap}
+.fhead .fspecs{flex:1;min-width:140px;font-size:12.5px;color:var(--s500);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fhead .fspecs b{font-family:var(--mono);font-weight:700;color:var(--s700)}
+.fhead .fupd{font-family:var(--mono);font-size:11.5px;color:var(--s400);white-space:nowrap}
+
+.rhead,.rrow{display:grid;align-items:center;font-size:13px;
+  grid-template-columns:132px 78px minmax(120px,1.25fr) 52px 78px 58px 58px
+    minmax(84px,1fr) minmax(84px,1fr) 74px}
+.rhead{background:var(--s50);border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);font-size:11.5px;font-weight:800;color:var(--s500)}
+.rhead>span{padding:7px 10px;white-space:nowrap}
+.rhead>span:last-child{text-align:right}
+.rrow{border-bottom:1px solid var(--line);cursor:pointer;transition:.1s}
+.rrow:hover{background:#F8FAFC}
+.rrow.open{background:var(--b50)}
+.rrow>span{padding:11px 10px;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.rrow .mono{font-family:var(--mono)}
+.rrow .c-no{font-family:var(--mono);font-weight:700;color:var(--s900)}
+.rrow .c-no .ic{display:inline-flex;vertical-align:-3px;margin-right:5px;color:var(--b600)}
+.rrow .c-no .ic svg{width:15px;height:15px}
+.rrow .c-mold{white-space:normal}
+.rrow .c-mold b{display:block;font-weight:700;color:var(--s900)}
+.rrow .c-mold i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--s400)}
+.rrow .c-pct{text-align:right}
+
+/* 手機：一筆一塊卡片，欄位名用 ::before 補在值前面，不用左右拉 */
+@media (max-width:820px){
+  .rhead{display:none}
+  .rrow{grid-template-columns:1fr;gap:3px;padding:13px 14px 14px}
+  .rrow>span{padding:0;white-space:normal;overflow:visible;text-overflow:clip}
+  .rrow>span:empty{display:none}
+  .rrow>span[data-l]::before{content:attr(data-l);display:inline-block;min-width:56px;
+    margin-right:6px;font-size:11.5px;font-weight:700;color:var(--s400)}
+  .rrow .c-mold{margin:3px 0 5px}
+  .rrow .c-mold::before{display:none}
+  .rrow .c-mold b{display:inline;font-size:16px;margin-right:8px}
+  .rrow .c-mold i{font-size:12.5px}
+  .rrow .c-pct{text-align:left}
+  .fhead .fspecs{flex:100%;min-width:0;white-space:normal}
+}
 
 .tfoot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
   gap:10px;padding:11px 14px;background:var(--s50);border-top:1px solid var(--line);

@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <!-- ui.css 提供登入遮罩與工控外殼；style.css 後載，表單本體與 A4 列印樣式以它為準 -->
-<link rel="stylesheet" href="ui.css?v=1789005589">
-<link rel="stylesheet" href="style.css?v=1789005589">
+<link rel="stylesheet" href="ui.css?v=1789009487">
+<link rel="stylesheet" href="style.css?v=1789009487">
 
 <div class="wrap">
 
@@ -56,17 +56,21 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1789005589"></script>
-<script src="banner.js?v=1789005589"></script>
-<script src="fields.js?v=1789005589"></script>
+<script src="config.js?v=1789009487"></script>
+<script src="banner.js?v=1789009487"></script>
+<script src="fields.js?v=1789009487"></script>
 <script type="module">
-import { requireLogin, get, create, update, derive, samePn, diffRecipe } from './db.js?v=1789005589';
+import { requireLogin, get, create, update, derive, samePn, diffRecipe, meta } from './db.js?v=1789009487';
 
 const qs = new URLSearchParams(location.search);
 let NO = qs.get('no') || '';
 let KIND = qs.get('kind') === 'RO' ? 'RO' : 'ST';
 let D = {};
 let dirty = false;
+// 已經出現過的客戶名。主頁是照這一欄分資料夾的，「將凱」跟「將凱(22T)」
+// 會變成兩個資料夾，所以這裡讓你用選的——但不擋新客戶，照打就是。
+// 名單不是預建的主檔，是已經存在的單自己長出來的。
+let CUSTS = [];
 
 const draftKey = () => 'eson-draft-' + (NO || 'new-' + KIND);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -86,7 +90,9 @@ function field(f) {
       `<label><input type="${f.type === 'checks' ? 'checkbox' : 'radio'}" name="${f.k}" value="${esc(o)}" data-k="${f.k}" data-multi="${f.type === 'checks' ? 1 : 0}"${cur.includes(o) ? ' checked' : ''}>${esc(o)}</label>`
     ).join('') + '</div>';
   } else {
-    inner = `<input type="text" data-k="${f.k}" value="${esc(v)}">`;
+    // 客戶那一格接一份既有客戶清單：打字時跳出來讓你選，選了才不會分岔成兩個資料夾
+    const dl = f.k === 'cust' ? ' list="dl-cust" autocomplete="off"' : '';
+    inner = `<input type="text" data-k="${f.k}" value="${esc(v)}"${dl}>`;
   }
   return `<div class="${cls}"><label>${esc(f.l)}</label>${inner}${f.note ? `<div class="note">${esc(f.note)}</div>` : ''}</div>`;
 }
@@ -116,7 +122,8 @@ function render() {
   document.getElementById('bST').setAttribute('aria-pressed', KIND === 'ST');
   document.getElementById('bRO').setAttribute('aria-pressed', KIND === 'RO');
   document.getElementById('segKind').style.display = NO ? 'none' : '';
-  document.getElementById('form').innerHTML = sections(KIND).map(s => {
+  const datalist = `<datalist id="dl-cust">${CUSTS.map(c => `<option value="${esc(c)}"></option>`).join('')}</datalist>`;
+  document.getElementById('form').innerHTML = datalist + sections(KIND).map(s => {
     let bodyHtml = '';
     if (s.stations) bodyHtml += stationTable(s.stations, s.passcol);
     if (s.f.length) bodyHtml += '<div class="grid">' + s.f.map(field).join('') + '</div>';
@@ -274,6 +281,8 @@ document.getElementById('btnSave').addEventListener('click', () => { clearTimeou
 
 if (await requireLogin()) {
   banner('打完停手一下就會自己存，不用按儲存。上面會顯示「已儲存」和單號', { id: 'form-autosave', plain: true });
+  // 抓不到客戶清單也不能擋住填寫——大不了那一格就是純手打
+  CUSTS = await meta().then(m => m.customers.map(c => c.v)).catch(() => []);
   if (NO) {
     const rec = await get(NO);
     if (!rec) { alert('查無此單：' + NO); location.href = './'; }
