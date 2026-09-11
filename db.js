@@ -65,10 +65,23 @@ export function derive(d, kind) {
   return { complete, missing, stepsUsed };
 }
 
-const shape = r => ({
-  no: r.no, kind: r.kind, created: r.created_at, updated: r.updated_at,
-  data: r.data || {}, ...derive(r.data || {}, r.kind),
-});
+// 2026-09-11 焊溝數量併進焊溝的底線（□有＿＿□無）。舊資料有填數量的，讀的時候搬過去，
+// 之後一存檔就不會再有 o_weld_n。焊溝勾「無」的就只丟掉數量，不改成有。
+export function upgrade(d) {
+  d = d || {};
+  if (!('o_weld_n' in d)) return d;
+  const out = { ...d };
+  const n = String(out.o_weld_n || '').trim();
+  delete out.o_weld_n;
+  if (n && out.o_weld !== '無') out.o_weld = n;
+  return out;
+}
+
+const shape = r => {
+  const data = upgrade(r.data);
+  return { no: r.no, kind: r.kind, created: r.created_at, updated: r.updated_at,
+    data, ...derive(data, r.kind) };
+};
 
 // ── 同一個成品料號，做法卻不一樣 ────────────────────────────
 // 一個成品料號就是一種做法。同號不同做法，一定有一邊是錯的，
@@ -125,6 +138,7 @@ export async function conflicts() {
   if (error) throw error;
   const byPn = new Map();
   for (const r of data) {
+    r.data = upgrade(r.data);
     const pn = String((r.data || {}).pnfin || '').trim();
     if (!pn) continue;
     if (!byPn.has(pn)) byPn.set(pn, []);
@@ -151,7 +165,7 @@ export async function samePn(no, pn) {
   if (!s) return [];
   const { data, error } = await db.from('travelers').select('no,kind,data').eq('pnfin', s);
   if (error) throw error;
-  return data.filter(r => r.no !== no).map(r => ({ no: r.no, kind: r.kind, data: r.data || {} }));
+  return data.filter(r => r.no !== no).map(r => ({ no: r.no, kind: r.kind, data: upgrade(r.data) }));
 }
 
 // ── 查詢 ────────────────────────────────────────────────────

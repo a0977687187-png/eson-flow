@@ -131,21 +131,21 @@ const FORM = {
    "k": "press",
    "l": "沖床台號",
    "type": "text",
-   "w": 15
+   "w": 8
   },
   {
    "op": "field",
    "k": "skewset",
    "l": "斜度設定值",
    "type": "text",
-   "w": 15
+   "w": 8
   },
   {
    "op": "field",
    "k": "o_pos2",
    "l": "料位",
    "type": "radio",
-   "w": 15,
+   "w": 8,
    "list": [
     "邊料",
     "中料",
@@ -157,7 +157,7 @@ const FORM = {
    "k": "o_groove",
    "l": "螺溝 ∩",
    "type": "text",
-   "w": 7
+   "w": 8
   },
   {
    "op": "field",
@@ -192,14 +192,14 @@ const FORM = {
    "k": "o_round",
    "l": "圓孔",
    "type": "text",
-   "w": 10
+   "w": 8
   },
   {
    "op": "field",
    "k": "o_vent",
    "l": "風孔",
-   "type": "radio",
-   "w": 10,
+   "type": "yesno",
+   "w": 8,
    "list": [
     "有",
     "無"
@@ -209,8 +209,8 @@ const FORM = {
    "op": "field",
    "k": "o_foot",
    "l": "足片別",
-   "type": "radio",
-   "w": 10,
+   "type": "yesno",
+   "w": 8,
    "list": [
     "有",
     "無"
@@ -220,8 +220,8 @@ const FORM = {
    "op": "field",
    "k": "o_logo",
    "l": "LOGO",
-   "type": "radio",
-   "w": 10,
+   "type": "yesno",
+   "w": 8,
    "list": [
     "有",
     "無"
@@ -232,7 +232,7 @@ const FORM = {
    "k": "o_mark",
    "l": "標記",
    "type": "checks",
-   "w": 10,
+   "w": 8,
    "list": [
     "APP字模",
     "ㄇ型記號孔",
@@ -243,8 +243,8 @@ const FORM = {
    "op": "field",
    "k": "o_weld",
    "l": "焊溝",
-   "type": "radio",
-   "w": 12,
+   "type": "yesno",
+   "w": 8,
    "list": [
     "有",
     "無"
@@ -252,24 +252,17 @@ const FORM = {
   },
   {
    "op": "field",
-   "k": "o_weld_n",
-   "l": "焊溝數量",
-   "type": "text",
-   "w": 12
-  },
-  {
-   "op": "field",
    "k": "shipto",
    "l": "送貨地點",
    "type": "text",
-   "w": 12
+   "w": 8
   },
   {
    "op": "field",
    "k": "packway",
    "l": "包裝方式",
    "type": "text",
-   "w": 12
+   "w": 8
   },
   {
    "op": "field",
@@ -551,21 +544,21 @@ const FORM = {
    "k": "press",
    "l": "沖床台號",
    "type": "text",
-   "w": 15
+   "w": 8
   },
   {
    "op": "field",
    "k": "skewset",
    "l": "斜度設定值",
    "type": "text",
-   "w": 15
+   "w": 8
   },
   {
    "op": "field",
    "k": "o_pos2",
    "l": "料位",
    "type": "radio",
-   "w": 15,
+   "w": 8,
    "list": [
     "邊料",
     "中料",
@@ -577,21 +570,21 @@ const FORM = {
    "k": "o_round",
    "l": "圓孔",
    "type": "text",
-   "w": 7
+   "w": 8
   },
   {
    "op": "field",
    "k": "o_bighole",
    "l": "大孔／小孔 φ",
    "type": "text",
-   "w": 7
+   "w": 8
   },
   {
    "op": "field",
    "k": "o_vent",
    "l": "風孔",
-   "type": "radio",
-   "w": 7,
+   "type": "yesno",
+   "w": 8,
    "list": [
     "有",
     "無"
@@ -601,8 +594,8 @@ const FORM = {
    "op": "field",
    "k": "o_logo",
    "l": "LOGO",
-   "type": "radio",
-   "w": 7,
+   "type": "yesno",
+   "w": 8,
    "list": [
     "有",
     "無"
@@ -612,8 +605,8 @@ const FORM = {
    "op": "field",
    "k": "o_foot",
    "l": "足片別",
-   "type": "radio",
-   "w": 7,
+   "type": "yesno",
+   "w": 8,
    "list": [
     "有",
     "無"
@@ -624,7 +617,7 @@ const FORM = {
    "k": "o_markhole",
    "l": "記號孔",
    "type": "radio",
-   "w": 12,
+   "w": 8,
    "list": [
     "ㄇ型記號孔",
     "U型記號孔",
@@ -635,8 +628,8 @@ const FORM = {
    "op": "field",
    "k": "o_idhole",
    "l": "辨識孔",
-   "type": "radio",
-   "w": 12,
+   "type": "yesno",
+   "w": 8,
    "list": [
     "有",
     "無"
@@ -646,8 +639,8 @@ const FORM = {
    "op": "field",
    "k": "o_laser",
    "l": "雷雕",
-   "type": "radio",
-   "w": 12,
+   "type": "yesno",
+   "w": 8,
    "list": [
     "有",
     "無"
@@ -658,7 +651,7 @@ const FORM = {
    "k": "o_mark",
    "l": "標記",
    "type": "checks",
-   "w": 12,
+   "w": 8,
    "list": [
     "APP字模",
     "無"

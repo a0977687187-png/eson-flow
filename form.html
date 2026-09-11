@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <!-- ui.css 提供登入遮罩與工控外殼；style.css 後載，表單本體與 A4 列印樣式以它為準 -->
-<link rel="stylesheet" href="ui.css?v=1789027173">
-<link rel="stylesheet" href="style.css?v=1789027173">
+<link rel="stylesheet" href="ui.css?v=1789098981">
+<link rel="stylesheet" href="style.css?v=1789098981">
 
 <div class="wrap">
 
@@ -56,11 +56,11 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="config.js?v=1789027173"></script>
-<script src="banner.js?v=1789027173"></script>
-<script src="fields.js?v=1789027173"></script>
+<script src="config.js?v=1789098981"></script>
+<script src="banner.js?v=1789098981"></script>
+<script src="fields.js?v=1789098981"></script>
 <script type="module">
-import { requireLogin, get, create, update, derive, samePn, diffRecipe, meta } from './db.js?v=1789027173';
+import { requireLogin, get, create, update, derive, samePn, diffRecipe, meta } from './db.js?v=1789098981';
 
 const qs = new URLSearchParams(location.search);
 let NO = qs.get('no') || '';
@@ -90,6 +90,14 @@ function field(f) {
     inner = `<select data-k="${f.k}"><option value=""></option>` +
       opts.map(o => `<option${v === o ? ' selected' : ''}>${esc(o)}</option>`).join('') +
       `<option${v === '其他' ? ' selected' : ''}>其他</option></select>`;
+  } else if (f.type === 'yesno') {
+    // 「□有＿＿□無」：值只存一個——'無'、'有'、或底線上打的字（打了字就代表有）
+    const has = v !== '' && v !== '無';
+    const txt = has && v !== '有' ? v : '';
+    inner = `<div class="yn" data-yn="${f.k}">
+      <label><input type="radio" name="${f.k}" value="有"${has ? ' checked' : ''}>有</label>
+      <input type="text" value="${esc(txt)}" placeholder="有什麼">
+      <label><input type="radio" name="${f.k}" value="無"${v === '無' ? ' checked' : ''}>無</label></div>`;
   } else if (f.type === 'checks' || f.type === 'radio') {
     const cur = f.type === 'checks' ? (v ? v.split('|') : []) : [v];
     inner = '<div class="opts">' + opts.map(o =>
@@ -219,12 +227,35 @@ function bind() {
         // 多行格：跟著字長高，順便更新列印用的鏡像
         if (el.tagName === 'TEXTAREA') { grow(el); el.nextElementSibling.textContent = el.value; }
       }
-      dirty = true;
-      localStorage.setItem(draftKey(), JSON.stringify(D));
-      markDirty();
-      progress();
-      scheduleSave();
+      touched();
     });
+  });
+  bindYesNo();
+}
+
+// 改了任何一格之後都要做的事：標記未存、存草稿、重算完整度、排自動儲存
+function touched() {
+  dirty = true;
+  localStorage.setItem(draftKey(), JSON.stringify(D));
+  markDirty();
+  progress();
+  scheduleSave();
+}
+
+// 「□有＿＿□無」的三個零件合成一個值。打字就自動勾「有」；點「無」把字清掉。
+function bindYesNo() {
+  document.querySelectorAll('.yn').forEach(box => {
+    const k = box.dataset.yn;
+    const yes = box.querySelector('input[value="有"]');
+    const no = box.querySelector('input[value="無"]');
+    const t = box.querySelector('input[type="text"]');
+    const commit = () => {
+      D[k] = no.checked ? '無' : (t.value.trim() || (yes.checked ? '有' : ''));
+      touched();
+    };
+    t.addEventListener('input', () => { if (t.value.trim()) yes.checked = true; commit(); });
+    yes.addEventListener('change', commit);
+    no.addEventListener('change', () => { t.value = ''; commit(); });
   });
 }
 
